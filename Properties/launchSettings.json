@@ -1,10 +1,7 @@
 {
   "profiles": {
     "USTManager": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "UKDLL": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ULTRAKILL\\ULTRAKILL_Data\\Managed\\Assembly-CSharp.dll"
-      }
+      "commandName": "Project"
     }
   }
 }
