@@ -13,8 +13,7 @@ namespace USTManager.Patches
         {
             //Debug.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
             if (!Manager.IsEnabled) return true;
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null);
-            /*if(Manager.IsDebug)
+            if(Manager.IsDebug)
             {
                 if(__instance.clip != null)
                 {
@@ -26,26 +25,35 @@ namespace USTManager.Patches
                     constraint.constraintActive = true;
                     Plugin.RunCoroutine(DestroyAfter(obj, 2f));
                 }
-            }*/
+            }
+            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null, null);
         }
 
         [HarmonyPatch(typeof(AudioSource), "clip", MethodType.Setter), HarmonyPrefix]
         public static bool set_clip(AudioSource __instance, AudioClip value)
         {
             if(!Manager.IsEnabled) return true;
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value);
+            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value, null);
             //Debug.Log(__instance.name + ": set_clip: " + value??"null");
         }
-        public static AudioClip NullClip = null;
+
         [HarmonyPatch(typeof(GameObject), "SetActive"), HarmonyPrefix]
         public static bool SetActive(GameObject __instance, bool value)
         {
             if(!Manager.IsEnabled) return true;
             if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
             {
-                return Manager.HandleAudio(SceneHelper.CurrentScene, source, NullClip);
+                return Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
             }
             return true;
+        }
+
+        [HarmonyPatch(typeof(MusicChanger), "Change"), HarmonyPrefix]
+        public static bool Change(MusicChanger __instance)
+        {
+            if(!Manager.IsEnabled) return true;
+            //return Manager.HandleMusicChanger(SceneHelper.CurrentScene, __instance);
+            return Manager.HandleAudio(SceneHelper.CurrentScene, null, null, __instance);
         }
 
         public static IEnumerator DestroyAfter(GameObject obj, float time)

@@ -11,7 +11,6 @@ using GameConsole;
 using System.Linq;
 using Newtonsoft.Json;
 using USTManager.Data;
-using USTManager.Utility;
 using USTManager.Patches;
 using USTManager.Commands;
 using TMPro;

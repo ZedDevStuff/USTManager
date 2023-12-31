@@ -13,8 +13,7 @@ namespace USTManager.Utility
                 string ext = Path.GetExtension(path);
                 if(ext == ".wav" || ext == ".mp3" || ext == ".ogg")
                 {
-                    byte[] data = File.ReadAllBytes(path);
-                    AudioClip clip = null;
+                    AudioClip clip;
                     UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(path, AudioType.UNKNOWN);
                     request.SendWebRequest();
                     while(!request.isDone) {}

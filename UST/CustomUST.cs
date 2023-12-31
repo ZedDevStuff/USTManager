@@ -97,8 +97,10 @@ namespace USTManager.Data
             ust._Levels.Add("1-1", l1_1);
             List<Descriptor> l1_2 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+                new("clean1","relative/path/to/track"),
+                new("battle1","relative/path/to/track"),
+                new("clean2","relative/path/to/track"),
+                new("battle2","relative/path/to/track"),
             };
             ust._Levels.Add("1-2", l1_2);
             List<Descriptor> l1_3 = new()
@@ -111,6 +113,7 @@ namespace USTManager.Data
             {
                 new("clean","relative/path/to/track"),
                 new("battle","relative/path/to/track"),
+                new("boss","relative/path/to/track"),
             };
             ust._Levels.Add("1-4", l1_4);
             List<Descriptor> l2_1 = new()
@@ -133,14 +136,16 @@ namespace USTManager.Data
             ust._Levels.Add("2-3", l2_3);
             List<Descriptor> l2_4 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+                new("boss1","relative/path/to/track"),
+                new("boss2","relative/path/to/track"),
             };
             ust._Levels.Add("2-4", l2_4);
             List<Descriptor> l3_1 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+                new("clean1","relative/path/to/track"),
+                new("battle1","relative/path/to/track"),
+                new("clean2","relative/path/to/track"),
+                new("battle2","relative/path/to/track"),
             };
             ust._Levels.Add("3-1", l3_1);
             List<Descriptor> l3_2 = new()
@@ -162,18 +167,22 @@ namespace USTManager.Data
             {
                 new("clean","relative/path/to/track"),
                 new("battle","relative/path/to/track"),
+                new("boss","relative/path/to/track"),
             };
             ust._Levels.Add("4-2", l4_2);
             List<Descriptor> l4_3 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+                new("clean1","relative/path/to/track"),
+                new("battle1","relative/path/to/track"),
+                new("clean2","relative/path/to/track"),
+                new("battle2","relative/path/to/track"),
+                new("clean3","relative/path/to/track"),
+                new("battle3","relative/path/to/track"),
             };
             ust._Levels.Add("4-3", l4_3);
             List<Descriptor> l4_4 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+               new("boss","relative/path/to/track"),
             };
             ust._Levels.Add("4-4", l4_4);
             List<Descriptor> l5_1 = new()
@@ -186,6 +195,7 @@ namespace USTManager.Data
             {
                 new("clean","relative/path/to/track"),
                 new("battle","relative/path/to/track"),
+                new("boss","relative/path/to/track"),
             };
             ust._Levels.Add("5-2", l5_2);
             List<Descriptor> l5_3 = new()
@@ -240,6 +250,14 @@ namespace USTManager.Data
             };
 
             // Add last Act 3 levels when it comes out
+
+            // P levels
+            List<Descriptor> lP_1 = new()
+            {
+                new("boss1","relative/path/to/track"),
+                new("boss2","relative/path/to/track"),
+            };
+            ust._Levels.Add("P-1", lP_1);
 
             return ust.GetJson();
         }
