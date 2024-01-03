@@ -309,6 +309,10 @@ namespace USTManager.Data
             }
             return false;
         }
+        public override int GetHashCode()
+        {
+            return _Levels.GetHashCode() ^ Name.GetHashCode() ^ Author.GetHashCode() ^ Description.GetHashCode();
+        }
         public struct Descriptor
         {
             public string Part, Path;

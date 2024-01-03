@@ -18,8 +18,6 @@ namespace USTManager
         public static bool CurrentLevelHandled { get; private set; } = false;
         private static Dictionary<string, AudioClip> CustomUST = new();
         public static List<CustomUST> AllUSTs = new();
-        // This is there in case
-        private static int Counter1 = 0;
         public static AudioClip GetClip(string id)
         {
             if(CustomUST.TryGetValue(id, out AudioClip clip))
