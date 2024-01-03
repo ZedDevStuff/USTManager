@@ -17,13 +17,21 @@ namespace USTManager.Patches
             {
                 if(__instance.clip != null)
                 {
-                    GameObject obj = GameObject.Instantiate(Plugin.DebugTextPrefab, __instance.transform.position, Quaternion.identity);
-                    obj.transform.localScale /= 2;
-                    obj.GetComponent<TMP_Text>().text = __instance.clip.name;
-                    var constraint = obj.GetComponent<RotationConstraint>();
-                    constraint.AddSource(new ConstraintSource(){sourceTransform = CameraController.Instance.transform, weight = 1});
-                    constraint.constraintActive = true;
-                    Plugin.RunCoroutine(DestroyAfter(obj, 2f));
+                    if(__instance.name.Contains("Theme") || __instance.name.Contains("Music"))
+                    {
+                        // TODO: Add text to screen instead of world
+                    }
+                    else
+                    {
+                        GameObject obj = GameObject.Instantiate(Plugin.DebugTextPrefab, __instance.transform.position, Quaternion.identity);
+                        obj.transform.localScale /= 2;
+                        obj.GetComponent<TMP_Text>().text = __instance.clip.name;
+                        var constraint = obj.GetComponent<RotationConstraint>();
+                        constraint.AddSource(new ConstraintSource(){sourceTransform = CameraController.Instance.transform, weight = 1});
+                        constraint.constraintActive = true;
+                        Plugin.RunCoroutine(DestroyAfter(obj, 2f));
+                    } 
+                    
                 }
             }
             return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null, null);
@@ -41,7 +49,15 @@ namespace USTManager.Patches
         public static bool SetActive(GameObject __instance, bool value)
         {
             if(!Manager.IsEnabled) return true;
-            if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
+            if(SceneHelper.CurrentScene == "Level 5-4" && __instance.name == "Music")
+            {
+                foreach(Transform child in __instance.transform)
+                {
+                    child.gameObject.SetActive(false);
+                    child.gameObject.SetActive(true);
+                }
+            }
+            else if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
             {
                 return Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
             }

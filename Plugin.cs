@@ -14,6 +14,8 @@ using USTManager.Data;
 using USTManager.Patches;
 using USTManager.Commands;
 using TMPro;
+using UnityEngine.UI;
+using USTManager.Misc;
 
 namespace USTManager
 {
@@ -21,34 +23,48 @@ namespace USTManager
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath;
-        public static GameObject DebugTextPrefab;
+        public static GameObject DebugTextPrefab, MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab;
         private void Awake()
         {
             instance = this;
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             Harmony.CreateAndPatchAll(typeof(AudioSourcePatches));
+            Harmony.CreateAndPatchAll(typeof(MainMenuPatches));
             UKPath = new DirectoryInfo(Application.dataPath).Parent.FullName;
             DirectoryInfo ustDir = new(Path.Combine(UKPath,"USTs"));
             if(!ustDir.Exists) ustDir.Create();
-            FileInfo[] files = Directory.GetFiles(Path.Combine(UKPath,"USTs"), "*.ust", SearchOption.AllDirectories).Select(x => new FileInfo(x)).ToArray();
-            foreach(FileInfo file in files)
-            {
-                if(file.Name == "template.ust") continue;
-                CustomUST ust = JsonConvert.DeserializeObject<CustomUST>(File.ReadAllText(file.FullName));
-                if(ust != null)
-                {
-                    ust.Path = file.Directory.FullName;
-                    Logger.LogInfo($"Loaded UST {ust.Name} by {ust.Author}");
-                    Manager.AllUSTs.Add(ust);
-                }
-            }
+            
+            
             AssetBundle bundle = AssetBundle.LoadFromMemory(Resources.Resource1.ust);
             DebugTextPrefab = bundle.LoadAsset<GameObject>("DebugText");
+            MenuEntryPrefab = bundle.LoadAsset<GameObject>("MenuEntry");
+            MenuEntryPrefab.AddComponent<HudOpenEffect>();
+            SelectionScreenEntryPrefab = bundle.LoadAsset<GameObject>("USTEntry");
+            USTEntry entry = SelectionScreenEntryPrefab.AddComponent<USTEntry>();
+            entry.Image = SelectionScreenEntryPrefab.transform.GetChild(0).GetComponent<Image>();
+            entry.Name = SelectionScreenEntryPrefab.transform.GetChild(1).GetComponent<TMP_Text>();
+            entry.Author = SelectionScreenEntryPrefab.transform.GetChild(2).GetComponent<TMP_Text>();
+            entry.IconButton = SelectionScreenEntryPrefab.transform.GetChild(0).GetComponent<Button>();
+            entry.Status = SelectionScreenEntryPrefab.transform.GetChild(0).GetChild(0).GetComponent<TMP_Text>();
+            SelectionScreenPrefab = bundle.LoadAsset<GameObject>("OptionMenu");
+            SelectionScreenPrefab.AddComponent<USTSelectionScreen>();
             Console.Instance.RegisterCommand(new USTToggle());
             Console.Instance.RegisterCommand(new USTDebug());
-            if(Manager.AllUSTs.Count > 0)Manager.LoadUST(Manager.AllUSTs.First());
             CreateTemplate();
             
+        }
+        public static USTSelectionScreen Screen;
+        public static void OpenMenu(Transform transform)
+        {
+            if(Screen == null)
+            {
+                Screen = GameObject.Instantiate(SelectionScreenPrefab, transform).GetComponent<USTSelectionScreen>();
+                Screen.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
+            }
+            else
+            {
+                Screen.gameObject.SetActive(true);
+            }
         }
         private static Plugin instance;
         public static void RunCoroutine(System.Collections.IEnumerator routine)
@@ -59,7 +75,8 @@ namespace USTManager
         {
             Directory.CreateDirectory(Path.Combine(UKPath,"USTs","Template"));
             File.WriteAllText(Path.Combine(UKPath,"USTs","Template","template.ust"), CustomUST.GetTemplateJson());
-            File.Create(Path.Combine(UKPath,"USTs","Template","place your tracks here or in subfolders.txt"));
+            File.WriteAllText(Path.Combine(UKPath,"USTs","Template","readme.md"),StaticResources.Readme);
         }
+        
     }
 }

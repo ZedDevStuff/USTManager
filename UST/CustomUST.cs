@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using UnityEngine;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace USTManager.Data
 {
@@ -15,11 +17,17 @@ namespace USTManager.Data
         [JsonProperty(Order = 2)]
         public string Description { get; private set; }
         [JsonIgnore]
-        public ReadOnlyDictionary<string, List<Descriptor>> Levels => new(_Levels);
+        public Dictionary<string, List<Descriptor>> Levels => new(_Levels);
         [JsonProperty("levels", Order = 3)]
         private Dictionary<string, List<Descriptor>> _Levels = new();
         [JsonIgnore]
         public string Path;
+        [JsonIgnore]
+        public bool IsUserMade = false;
+        [JsonIgnore]
+        public Color UserColor = Color.white;
+        [JsonIgnore]
+        public Sprite Icon = null;
 
         public CustomUST(){}
         public CustomUST(string name, string author, string description)
@@ -193,33 +201,36 @@ namespace USTManager.Data
             ust._Levels.Add("5-1", l5_1);
             List<Descriptor> l5_2 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
-                new("boss","relative/path/to/track"),
+                new("boss1","relative/path/to/track"),
+                new("boss2","relative/path/to/track"),
+                new("boss3","relative/path/to/track"),
             };
             ust._Levels.Add("5-2", l5_2);
             List<Descriptor> l5_3 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+                new("clean1","relative/path/to/track"),
+                new("battle1","relative/path/to/track"),
+                new("clean2","relative/path/to/track"),
+                new("battle2","relative/path/to/track"),
             };
             ust._Levels.Add("5-3", l5_3);
             List<Descriptor> l5_4 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+                new("boss1","relative/path/to/track"),
+                new("boss2","relative/path/to/track"),
             };
             ust._Levels.Add("5-4", l5_4);
             List<Descriptor> l6_1 = new()
             {
                 new("clean","relative/path/to/track"),
                 new("battle","relative/path/to/track"),
+                new("clean2","relative/path/to/track"),
+                new("boss","relative/path/to/track"),
             };
             ust._Levels.Add("6-1", l6_1);
             List<Descriptor> l6_2 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+                new("boss","relative/path/to/track"),
             };
             ust._Levels.Add("6-2", l6_2);
             
@@ -229,25 +240,28 @@ namespace USTManager.Data
             {
                 new("clean","relative/path/to/track"),
                 new("battle","relative/path/to/track"),
+                new("boss1","relative/path/to/track"),
+                new("boss2","relative/path/to/track"),
             };
             ust._Levels.Add("7-1", l7_1);
             List<Descriptor> l7_2 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+                new("clean1","relative/path/to/track"),
+                new("battle1","relative/path/to/track"),
+                new("clean2","relative/path/to/track"),
+                new("battle2","relative/path/to/track"),
             };
             ust._Levels.Add("7-2", l7_2);
             List<Descriptor> l7_3 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+                new("clean1","relative/path/to/track"),
+                new("battle1","relative/path/to/track"),
+                new("clean2","relative/path/to/track"),
+                new("battle2","relative/path/to/track"),
             };
             ust._Levels.Add("7-3", l7_3);
-            List<Descriptor> l7_4 = new()
-            {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
-            };
+            // 7-4 uses a LOT of tracks to be reactive, i'm not patching that and
+            // i doubt anyonwe would bother making a UST for that too considering the amount of work
 
             // Add last Act 3 levels when it comes out
 
@@ -260,6 +274,40 @@ namespace USTManager.Data
             ust._Levels.Add("P-1", lP_1);
 
             return ust.GetJson();
+        }
+        public override bool Equals(object obj)
+        {
+            if(obj is CustomUST ust)
+            {
+                bool equals = false;
+                if(_Levels.Count == ust._Levels.Count)
+                {
+                    equals = true;
+                    foreach(KeyValuePair<string, List<Descriptor>> pair in _Levels)
+                    {
+                        if(ust._Levels.ContainsKey(pair.Key))
+                        {
+                            if(ust._Levels[pair.Key].Count != pair.Value.Count)
+                            {
+                                equals = false;
+                                break;
+                            }
+                            foreach(Descriptor d in pair.Value)
+                            {
+                                if(!ust._Levels[pair.Key].Contains(d))
+                                {
+                                    equals = false;
+                                    break;
+                                }
+                            }
+                        }
+                        else equals = false;
+                    }
+                }
+                else equals = false;
+                return Name == ust.Name && Author == ust.Author && Description == ust.Description && equals;
+            }
+            return false;
         }
         public struct Descriptor
         {
