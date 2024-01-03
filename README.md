@@ -15,5 +15,7 @@ Install from thunderstore either manually or using r2modman OR build from source
 # Roadmap
 
 - Missing levels
+- More debug options for soundtrack makers
 - UST stacking/mixing
 - Sorting in the menu
+- Shuffle
