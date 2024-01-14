@@ -1,3 +1,5 @@
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V3JCAG2)
+
 # USTManager
 
 This is the successor to UKMusicReplacement, built from scratch to be easier to work with
