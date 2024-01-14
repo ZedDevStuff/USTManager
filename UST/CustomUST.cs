@@ -126,8 +126,8 @@ namespace USTManager.Data
             ust._Levels.Add("1-4", l1_4);
             List<Descriptor> l2_1 = new()
             {
-                new("clean","relative/path/to/track"),
-                new("battle","relative/path/to/track"),
+                new("intro","relative/path/to/track"),
+                new("boss","relative/path/to/track"),
             };
             ust._Levels.Add("2-1", l2_1);
             List<Descriptor> l2_2 = new()

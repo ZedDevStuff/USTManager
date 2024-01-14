@@ -118,7 +118,7 @@ namespace USTManager
             {"1-1",Handle1_1},
             {"1-2",Handle1_2},
             {"1-3",(source, clip, changer) => DefaultHandler("1-3", source, clip)},
-            {"1-4",(source, clip, changer) => DefaultHandler("1-4", source, clip)},
+            {"1-4",Handle1_4},
             {"2-1",(source, clip, changer) => DefaultHandler("2-1", source, clip)},
             {"2-2",(source, clip, changer) => DefaultHandler("2-2", source, clip)},
             {"2-3",(source, clip, changer) => DefaultHandler("2-3", source, clip)},
@@ -249,6 +249,23 @@ namespace USTManager
                     }
                 }
                 return true;
+            }
+            return true;
+        }
+        public static bool Handle1_4(AudioSource source, AudioClip clip, MusicChanger changer)
+        {
+            if(source != null && source.clip != null)
+            {
+                if(source.clip.name.Contains("V2 Intro"))
+                {
+                    if(!CustomUST.ContainsKey("1-4:intro")) return true;
+                    source.clip = CustomUST["1-4:intro"];
+                }
+                else if(source.clip.name.Contains("V2 1-4"))
+                {
+                    if(!CustomUST.ContainsKey("1-4:boss")) return true;
+                    source.clip = CustomUST["1-4:boss"];
+                }
             }
             return true;
         }

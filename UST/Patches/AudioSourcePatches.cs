@@ -8,6 +8,22 @@ namespace USTManager.Patches
 {
     public class AudioSourcePatches
     {
+        // I don't remember why I made this. it does work but i don't really see much of a point anymore.
+        // I'll keep it here for now just in case.
+        [HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPrefix]
+        public static void StatsManagerAwake(StatsManager __instance)
+        {
+            if(!Manager.IsEnabled) return;
+            var data = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(AudioSource));
+            foreach(AudioSource source in data)
+            {
+                if(source.clip != null)
+                {
+                    Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
+                }
+            }
+        }
+
         [HarmonyPatch(typeof(AudioSource), "Play", [typeof(double)]), HarmonyPrefix]
         public static bool Play(AudioSource __instance, double delay)
         {
@@ -96,6 +112,7 @@ namespace USTManager.Patches
             if(!Manager.IsEnabled) return;
             if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
             {
+                if(Manager.IsDebug) Debug.Log($"Crossfade: {source.clip.name} in {SceneHelper.CurrentScene}");
                 Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
                 if(source.playOnAwake) source.Play();
             }
