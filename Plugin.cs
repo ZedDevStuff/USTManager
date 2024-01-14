@@ -30,6 +30,7 @@ namespace USTManager
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             Harmony.CreateAndPatchAll(typeof(AudioSourcePatches));
             Harmony.CreateAndPatchAll(typeof(MainMenuPatches));
+            
             UKPath = new DirectoryInfo(Application.dataPath).Parent.FullName;
             DirectoryInfo ustDir = new(Path.Combine(UKPath,"USTs"));
             if(!ustDir.Exists) ustDir.Create();

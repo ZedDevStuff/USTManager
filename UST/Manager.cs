@@ -18,19 +18,6 @@ namespace USTManager
         public static bool CurrentLevelHandled { get; private set; } = false;
         private static Dictionary<string, AudioClip> CustomUST = new();
         public static List<CustomUST> AllUSTs = new();
-        public static AudioClip GetClip(string id)
-        {
-            if(CustomUST.TryGetValue(id, out AudioClip clip))
-            {
-                return clip;
-            }
-            return null;
-        }
-        public static AudioClip GetClip(string level, string part)
-        {
-            return GetClip($"{level}:{part}");
-        }
-
         public static void CheckUSTs()
         {
             FileInfo[] files = Directory.GetFiles(Path.Combine(Plugin.UKPath,"USTs"), "*.ust", SearchOption.AllDirectories).Select(x => new FileInfo(x)).ToArray();
@@ -123,26 +110,26 @@ namespace USTManager
         // This is only used because its faster than a 20+ if chain
         private static Dictionary<string, Func<AudioSource,AudioClip,MusicChanger,bool>> Handlers = new()
         {
-            {"0-1",Handle0_1},
-            {"0-2",Handle0_2},
-            {"0-3",Handle0_3},
-            {"0-4",Handle0_4},
+            {"0-1",(source, clip, changer) => DefaultHandler("0-1", source, clip)},
+            {"0-2",(source, clip, changer) => DefaultHandler("0-2", source, clip)},
+            {"0-3",(source, clip, changer) => DefaultHandler("0-3", source, clip)},
+            {"0-4",(source, clip, changer) => DefaultHandler("0-4", source, clip)},
             {"0-5",Handle0_5},
             {"1-1",Handle1_1},
             {"1-2",Handle1_2},
-            {"1-3",Handle1_3},
-            {"1-4",Handle1_4},
-            {"2-1",Handle2_1},
-            {"2-2",Handle2_2},
-            {"2-3",Handle2_3},
+            {"1-3",(source, clip, changer) => DefaultHandler("1-3", source, clip)},
+            {"1-4",(source, clip, changer) => DefaultHandler("1-4", source, clip)},
+            {"2-1",(source, clip, changer) => DefaultHandler("2-1", source, clip)},
+            {"2-2",(source, clip, changer) => DefaultHandler("2-2", source, clip)},
+            {"2-3",(source, clip, changer) => DefaultHandler("2-3", source, clip)},
             {"2-4",Handle2_4},
             {"3-1",Handle3_1},
             {"3-2",Handle3_2},
-            {"4-1",Handle4_1},
-            {"4-2",Handle4_2},
+            {"4-1",(source, clip, changer) => DefaultHandler("4-1", source, clip)},
+            {"4-2",(source, clip, changer) => DefaultHandler("4-2", source, clip)},
             {"4-3",Handle4_3},
             {"4-4",Handle4_4},
-            {"5-1",Handle5_1},
+            {"5-1",(source, clip, changer) => DefaultHandler("5-1", source, clip)},
             {"5-2",Handle5_2},
             {"5-3",Handle5_3},
             {"5-4",Handle5_4},
@@ -195,10 +182,6 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle0_1(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("0-1", source, clip);
-        public static bool Handle0_2(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("0-2", source, clip);
-        public static bool Handle0_3(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("0-3", source, clip);
-        public static bool Handle0_4(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("0-4", source, clip);
         public static bool Handle0_5(AudioSource source, AudioClip clip, MusicChanger changer)
         {
             if(source == null || source.clip == null) return true;
@@ -269,11 +252,6 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle1_3(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("1-3", source, clip);
-        public static bool Handle1_4(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("1-4", source, clip);
-        public static bool Handle2_1(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("2-1", source, clip);
-        public static bool Handle2_2(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("2-2", source, clip);
-        public static bool Handle2_3(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("2-3", source, clip);
         public static bool Handle2_4(AudioSource source, AudioClip clip, MusicChanger changer)
         {
             if(source != null && source.clip != null)
@@ -349,8 +327,6 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle4_1(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("4-1", source, clip);
-        public static bool Handle4_2(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("4-2", source, clip);
         public static bool Handle4_3(AudioSource source, AudioClip clip, MusicChanger changer)
         {
             if(changer != null)
@@ -457,7 +433,6 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle5_1(AudioSource source, AudioClip clip, MusicChanger changer) => DefaultHandler("5-1", source, clip);
         public static bool Handle5_2(AudioSource source, AudioClip clip, MusicChanger changer)
         {
             if(source != null && source.clip != null)
