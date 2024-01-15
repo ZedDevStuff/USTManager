@@ -9,20 +9,21 @@ namespace USTManager.Patches
     public class AudioSourcePatches
     {
         // I don't remember why I made this. it does work but i don't really see much of a point anymore.
-        // I'll keep it here for now just in case.
-        [HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPrefix]
+        // I'll keep it here for now just in case i ever need it.
+        /*[HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPrefix]
         public static void StatsManagerAwake(StatsManager __instance)
         {
             if(!Manager.IsEnabled) return;
             var data = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(AudioSource));
             foreach(AudioSource source in data)
             {
+                if(Manager.IsDebug && source.clip != null && source.playOnAwake && !source.gameObject.activeInHierarchy) Debug.Log($"PlayOnAwake ({source.gameObject.name}): {source.clip.name}");
                 if(source.clip != null)
                 {
                     Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
                 }
             }
-        }
+        }*/
 
         [HarmonyPatch(typeof(AudioSource), "Play", [typeof(double)]), HarmonyPrefix]
         public static bool Play(AudioSource __instance, double delay)

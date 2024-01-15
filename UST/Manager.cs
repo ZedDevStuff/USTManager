@@ -25,20 +25,27 @@ namespace USTManager
             foreach(FileInfo file in files)
             {
                 if(file.Name == "template.ust") continue;
-                CustomUST ust = JsonConvert.DeserializeObject<CustomUST>(File.ReadAllText(file.FullName));
-                if(ust != null)
+                try
                 {
-                    ust.Path = file.Directory.FullName;
-                    string iconPath = Path.Combine(file.Directory.FullName,"icon.png");
-                    if(File.Exists(iconPath))
+                    CustomUST ust = JsonConvert.DeserializeObject<CustomUST>(File.ReadAllText(file.FullName));
+                    if(ust != null)
                     {
-                        Texture2D icon = new Texture2D(100,100);
-                        if(icon.LoadImage(File.ReadAllBytes(iconPath)))
+                        ust.Path = file.Directory.FullName;
+                        string iconPath = Path.Combine(file.Directory.FullName,"icon.png");
+                        if(File.Exists(iconPath))
                         {
-                            ust.Icon = Sprite.Create(icon, new Rect(0,0,icon.width,icon.height), new Vector2(0.5f,0.5f));
+                            Texture2D icon = new Texture2D(100,100);
+                            if(icon.LoadImage(File.ReadAllBytes(iconPath)))
+                            {
+                                ust.Icon = Sprite.Create(icon, new Rect(0,0,icon.width,icon.height), new Vector2(0.5f,0.5f));
+                            }
                         }
+                        AllUSTs.Add(ust);
                     }
-                    AllUSTs.Add(ust);
+                }
+                catch
+                {
+                    Debug.LogError($"[USTManager] Failed to load UST {file.Name}: Invalid JSON");
                 }
             }
         } 

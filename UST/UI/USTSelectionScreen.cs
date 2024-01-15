@@ -25,7 +25,11 @@ public class USTSelectionScreen : MonoBehaviour
             DeleteButton = transform.GetChild(4).GetChild(1).GetComponent<Button>();
             DeleteButton.onClick.AddListener(() => { DeleteEntry(); });
         }
-        if(RefreshButton == null) RefreshButton = transform.GetChild(4).GetChild(2).GetComponent<Button>();
+        if(RefreshButton == null) 
+        {
+            RefreshButton = transform.GetChild(4).GetChild(2).GetComponent<Button>();
+            RefreshButton.onClick.AddListener(() => { Refresh(); });
+        }
         if(ExitButton == null)
         {
             ExitButton = transform.GetChild(1).GetComponent<Button>();
