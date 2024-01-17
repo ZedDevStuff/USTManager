@@ -10,7 +10,7 @@ Install from thunderstore either manually or using r2modman OR build from source
 
 # Known issues
 
-- 7-4 Isn't compatible for a reason, It uses a ton of different audioclips to make the full song, which i didn't bother to patch and i doubt anyone would have spent that much time making custom tracks for it
+- 7-4 Isn't compatible right now, but you can use the global space to change the songs manually. Proper support coming soon.
 - Secret levels don't work yet, but it could be possible that using the global sound replacement, they could work
 - P-2 Isn't compatible at the moment but is planned
 
@@ -18,6 +18,6 @@ Install from thunderstore either manually or using r2modman OR build from source
 
 - Missing levels
 - More debug options for soundtrack makers
-- UST stacking/mixing
+- UST Editor
 - Sorting in the menu
 - Shuffle
