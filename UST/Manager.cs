@@ -65,7 +65,11 @@ namespace USTManager
             {
                 foreach(var desc in level.Value)
                 {
-                    if(!ust.IsMerged && !File.Exists(Path.Combine(path,desc.Path))) continue;
+                    if(!ust.IsMerged && !File.Exists(Path.Combine(path,desc.Path)))
+                    {
+                        Debug.Log("Skipping");
+                        continue;
+                    }
                     var d = clips.Where(x => x.Value.name == "[UST] " + Path.GetFileNameWithoutExtension(desc.Path));
                     if(d.Count() > 0)
                     {
@@ -95,6 +99,7 @@ namespace USTManager
                             Debug.Log($"[USTManager] Adding clip {level.Key+":"+desc.Part}");
                         }
                     }
+                    else Debug.Log("Something went wrong with this clip");
                 }
             }
             if(clips.Count > 0)

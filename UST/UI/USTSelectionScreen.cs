@@ -49,6 +49,7 @@ public class USTSelectionScreen : MonoBehaviour
             ExitButton = transform.GetChild(1).GetComponent<Button>();
             ExitButton.onClick.AddListener(() => 
             {
+                SelectedEntries.Clear();
                 gameObject.SetActive(false); 
             });
         }
@@ -113,14 +114,10 @@ public class USTSelectionScreen : MonoBehaviour
         {
             SelectedEntries.Add(entry);
         }
-        SelectedEntries.ForEach(x => Debug.Log(x.UST.Name));
-        Debug.Log(SelectedEntries.Count);
     }
     public void DeselectEntry(USTEntry entry)
     {
         if(entry != null && SelectedEntries.Contains(entry)) SelectedEntries.Remove(entry);
-        SelectedEntries.ForEach(x => Debug.Log(x.UST.Name));
-        Debug.Log(SelectedEntries.Count);
     }
     public void AddNew()
     {
