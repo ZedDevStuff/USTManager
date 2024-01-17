@@ -22,7 +22,7 @@ namespace USTManager
     [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.1.0")]
     public class Plugin : BaseUnityPlugin
     {
-        public static string UKPath;
+        public static string UKPath, USTDir;
         public static GameObject DebugTextPrefab, MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab;
         private void Awake()
         {
@@ -33,6 +33,7 @@ namespace USTManager
             
             UKPath = new DirectoryInfo(Application.dataPath).Parent.FullName;
             DirectoryInfo ustDir = new(Path.Combine(UKPath,"USTs"));
+            USTDir = ustDir.FullName;
             if(!ustDir.Exists) ustDir.Create();
             
             

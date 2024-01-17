@@ -7,27 +7,50 @@ using USTManager.Data;
 
 public class USTEntry : MonoBehaviour
 {
-    [SerializeField] public Image Image;
-    [SerializeField] public Button IconButton;
+    public Image Image;
+    public Button IconButton, EntryButton;
+    public Image EntryButtonImage;
+    Toggle Toggle;
     private Sprite Icon;
-    [SerializeField] public TMP_Text Name, Author, Status;
+    public TMP_Text Name, Author, Status;
     private USTSelectionScreen SelectionScreen;
     public CustomUST UST;
+    static Color green = new Color(0f, 1f, 0f,1);
+    static Color white = new Color(1f, 1f, 1f,1);
 
     private void Awake()
     {
         SelectionScreen = GetComponentInParent<USTSelectionScreen>();
-        GetComponent<Button>().onClick.AddListener(() => { SelectionScreen.ManipulateEntry(gameObject); });
+        Toggle = GetComponentInChildren<Toggle>();
+        EntryButton = GetComponent<Button>();
+        EntryButtonImage = EntryButton.GetComponent<Image>();
         IconButton.onClick.AddListener(() => 
         {
-            if(SelectionScreen.SelectedEntry != null && SelectionScreen.SelectedEntry.UST.Equals(UST))
-            {
-                SelectionScreen.SelectedEntry.GetComponent<Button>().interactable = true;
-                SelectionScreen.SelectedEntry.Status.text = "";
-                SelectionScreen.SelectEntry(null);
-            }
-            else SelectionScreen.SelectEntry(gameObject); 
+            if(Toggle.isOn) Toggle.isOn = false;
+            else Toggle.isOn = true;
         });
+        EntryButton.onClick.AddListener(() => 
+        {
+            if(Toggle.isOn) Toggle.isOn = false;
+            else Toggle.isOn = true;
+        });
+        Toggle.onValueChanged.AddListener((value) => 
+        {
+            if(value)
+            {
+                EntryButtonImage.color = green;
+                SelectionScreen.SelectEntry(this);
+            }
+            else
+            {
+                EntryButtonImage.color = white;
+                SelectionScreen.DeselectEntry(this);
+            } 
+        });
+    }
+    public void Select()
+    {
+        Toggle.isOn = true;
     }
     void OnDestroy()
     {

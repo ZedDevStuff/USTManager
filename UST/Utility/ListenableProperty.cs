@@ -4,25 +4,25 @@ using System.Text;
 
 namespace USTManager.Utility
 {
-public class ListenableProperty<T>
-{
-    private T _Value;
-    public T Value
+    public class ListenableProperty<T>
     {
-        get => _Value;
-        set
+        private T _Value;
+        public T Value
         {
-            if (value.Equals(_Value)) return;
-            _Value = value;
-            OnValueChanged?.Invoke(value);
+            get => _Value;
+            set
+            {
+                if (value.Equals(_Value)) return;
+                _Value = value;
+                OnValueChanged?.Invoke(value);
+            }
         }
+
+        private ListenableProperty(T value) => _Value = value;
+
+        public event Action<T> OnValueChanged;
+            
+        public static implicit operator ListenableProperty<T>(T value) => new ListenableProperty<T>(value);
+        public static implicit operator T(ListenableProperty<T> value) => value.Value;
     }
-
-    private ListenableProperty(T value) => _Value = value;
-
-    public event Action<T> OnValueChanged;
-        
-    public static implicit operator ListenableProperty<T>(T value) => new ListenableProperty<T>(value);
-    public static implicit operator T(ListenableProperty<T> value) => value.Value;
-}
 }
