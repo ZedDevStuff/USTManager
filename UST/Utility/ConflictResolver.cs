@@ -27,7 +27,7 @@ namespace USTManager.Utility
                         {
                             if(others.Levels.ContainsKey(level.Key))
                             {
-                                if(conflicts.ContainsKey(level.Key))
+                                if(!conflicts.ContainsKey(level.Key))
                                 {
                                     conflicts.Add(level.Key, [ust]);
                                 }
@@ -35,7 +35,6 @@ namespace USTManager.Utility
                                 {
                                     conflicts[level.Key].Add(ust);
                                 }
-                                break;
                             }
                             else
                             {
@@ -59,7 +58,7 @@ namespace USTManager.Utility
                                 {
                                     if(other.Levels["global"].Where(x => x.Part == entry.Part).Count() > 0)
                                     {
-                                        if(conflicts.ContainsKey($"global:{entry.Part}"))
+                                        if(!conflicts.ContainsKey($"global:{entry.Part}"))
                                         {
                                             conflicts.Add($"global:{entry.Part}", [ust]);
                                         }
@@ -70,11 +69,11 @@ namespace USTManager.Utility
                                     }
                                     else 
                                     {
-                                        if(merged.Levels.ContainsKey("global"))
+                                        if(!merged.Levels.ContainsKey("global"))
                                         {
-                                            merged.Levels["global"].Add(new(entry.Part,Path.Combine(ust.Path,entry.Path)));
+                                            merged.Levels.Add("global",[new(entry.Part,Path.Combine(ust.Path,entry.Path))]);
                                         }
-                                        else merged.Levels.Add("global",[new(entry.Part,Path.Combine(ust.Path,entry.Path))]);
+                                        else merged.Levels["global"].Add(new(entry.Part,Path.Combine(ust.Path,entry.Path)));
                                     }
                                 }
                             }
@@ -91,26 +90,26 @@ namespace USTManager.Utility
     {
         private CustomUST original;
         public Dictionary<string,List<CustomUST>> Conflicts = new();
-        public Dictionary<string,CustomUST> Merged = new();
+        private Dictionary<string,CustomUST> Merged = new();
+        public int ConflictCount => Conflicts.Count;
+        public int SolvedCount => Merged.Count;
 
         public Conflict(CustomUST original, Dictionary<string,List<CustomUST>> conflicts)
         {
             this.original = original;
             Conflicts = conflicts;
-            foreach(var conflict in conflicts)
-            {
-                Merged.Add(conflict.Key, conflict.Value[0]);
-            }
         }
         public bool Validate(out CustomUST UST)
         {
-            if(Merged.Count == Conflicts.Count)
+            if(ConflictCount == 0 || SolvedCount == ConflictCount)
             {
+                Debug.WriteLine("No conflicts");
                 UST = original;
                 return true;
             }
             else
             {
+                Debug.WriteLine("Conflict resolution isn't supported yet");
                 UST = null;
                 return false;
             }

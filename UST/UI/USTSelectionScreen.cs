@@ -65,6 +65,7 @@ public class USTSelectionScreen : MonoBehaviour
                     {
                         Manager.LoadUST(SelectedEntries[0].UST);
                         CurrentUST = SelectedEntries[0].UST;
+                        PersistentEntries.Clear();
                         SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Hash));
                     }
                     else if(SelectedEntries.Count > 1)
@@ -74,9 +75,15 @@ public class USTSelectionScreen : MonoBehaviour
                         {
                             Manager.LoadUST(ust);
                             CurrentUST = ust;
+                            PersistentEntries.Clear();
                             SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Hash));
+                            SelectedEntries.Clear();
                         }
-                        else return;
+                        else
+                        {
+                            // TODO: Show conflict resolution screen
+                            return;
+                        }
                     }
                 }
                 else
@@ -108,16 +115,23 @@ public class USTSelectionScreen : MonoBehaviour
     {
         Refresh();
     }
+    void OnDisable()
+    {
+        SelectedEntries.Clear();
+        gameObject.SetActive(false);
+    }
     public void SelectEntry(USTEntry entry)
     {
         if(entry != null && !SelectedEntries.Contains(entry))
         {
             SelectedEntries.Add(entry);
         }
+        Debug.Log($"{SelectedEntries.Count} entries selected");
     }
     public void DeselectEntry(USTEntry entry)
     {
         if(entry != null && SelectedEntries.Contains(entry)) SelectedEntries.Remove(entry);
+        Debug.Log($"{SelectedEntries.Count} entries selected");
     }
     public void AddNew()
     {
