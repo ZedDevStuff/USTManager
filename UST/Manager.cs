@@ -31,6 +31,7 @@ namespace USTManager
                     if(ust != null)
                     {
                         ust.Path = file.Directory.FullName;
+                        ust.Hash = Hash128.Compute(ust.Path).ToString();
                         string iconPath = Path.Combine(file.Directory.FullName,"icon.png");
                         if(File.Exists(iconPath))
                         {
@@ -64,7 +65,7 @@ namespace USTManager
             {
                 foreach(var desc in level.Value)
                 {
-                    if(!File.Exists(Path.Combine(path,desc.Path))) continue;
+                    if(!ust.IsMerged && !File.Exists(Path.Combine(path,desc.Path))) continue;
                     var d = clips.Where(x => x.Value.name == "[UST] " + Path.GetFileNameWithoutExtension(desc.Path));
                     if(d.Count() > 0)
                     {
@@ -80,7 +81,7 @@ namespace USTManager
                         }
                         continue;
                     }
-                    AudioClip clip = Loader.LoadClipFromPath(Path.Combine(path,desc.Path));
+                    AudioClip clip = ust.IsMerged ? Loader.LoadClipFromPath(desc.Path) : Loader.LoadClipFromPath(Path.Combine(path,desc.Path));
                     if(clip != null)
                     {
                         if(level.Key == "global")

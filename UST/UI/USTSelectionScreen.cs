@@ -6,24 +6,38 @@ using UnityEngine.UI;
 using USTManager.Data;
 using USTManager;
 using System.Linq;
+using USTManager.Utility;
 
 public class USTSelectionScreen : MonoBehaviour
 {
     private static List<RectTransform> Entries = new List<RectTransform>();
     private ScrollRect ScrollRect;
     [SerializeField] private GameObject EntryPrefab;
-    [SerializeField] private Button CreateButton, DeleteButton, RefreshButton, ExitButton, ConfirmButton;
-
-    List<CustomUST> Data = new();
+    [SerializeField] private Button CreateButton, OpenFolderButton, RefreshButton, ExitButton, ConfirmButton;
+    private static Conflict Conflict = null;
 
     private void Awake()
     {
         if(EntryPrefab == null) EntryPrefab = Plugin.SelectionScreenEntryPrefab;
         if(CreateButton == null) CreateButton = transform.GetChild(4).GetChild(0).GetComponent<Button>();
-        if(DeleteButton == null)
+        if(OpenFolderButton == null)
         {
-            DeleteButton = transform.GetChild(4).GetChild(1).GetComponent<Button>();
-            DeleteButton.onClick.AddListener(() => { DeleteEntry(); });
+            OpenFolderButton = transform.GetChild(4).GetChild(1).GetComponent<Button>();
+            OpenFolderButton.onClick.AddListener(() => 
+            {
+                switch(Application.platform)
+                {
+                    case RuntimePlatform.WindowsPlayer:
+                        System.Diagnostics.Process.Start("explorer.exe", Plugin.USTDir);
+                        break;
+                    case RuntimePlatform.OSXPlayer:
+                        System.Diagnostics.Process.Start("open", Plugin.USTDir);
+                        break;
+                    case RuntimePlatform.LinuxPlayer:
+                        System.Diagnostics.Process.Start("xdg-open", Plugin.USTDir);
+                        break;
+                };
+            });
         }
         if(RefreshButton == null) 
         {
@@ -34,10 +48,7 @@ public class USTSelectionScreen : MonoBehaviour
         {
             ExitButton = transform.GetChild(1).GetComponent<Button>();
             ExitButton.onClick.AddListener(() => 
-            { 
-                if(SelectedEntry != null) SelectedEntry.GetComponent<Button>().interactable = true;
-                ManipulatingEntry = null;
-                DeleteButton.interactable = false;
+            {
                 gameObject.SetActive(false); 
             });
         }
@@ -46,62 +57,70 @@ public class USTSelectionScreen : MonoBehaviour
             ConfirmButton = transform.GetChild(2).GetComponent<Button>();
             ConfirmButton.onClick.AddListener(() => 
             {
-                ManipulatingEntry = null;
-                DeleteButton.interactable = false;
-                Manager.LoadUST(SelectedEntry == null ? null : SelectedEntry.UST);
+                OpenFolderButton.interactable = false;
+                if(SelectedEntries.Count != 0) 
+                {
+                    if(SelectedEntries.Count == 1)
+                    {
+                        Manager.LoadUST(SelectedEntries[0].UST);
+                        CurrentUST = SelectedEntries[0].UST;
+                        SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Hash));
+                    }
+                    else if(SelectedEntries.Count > 1)
+                    {
+                        Conflict conflict = ConflictResolver.Merge(SelectedEntries.Select(x => x.UST).ToArray());
+                        if(conflict.Validate(out CustomUST ust))
+                        {
+                            Manager.LoadUST(ust);
+                            CurrentUST = ust;
+                            SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Hash));
+                        }
+                        else return;
+                    }
+                }
+                else
+                {
+                    Manager.UnloadUST();
+                    PersistentEntries.Clear();
+                    SelectedEntries.Clear();
+                }
                 gameObject.SetActive(false);
             });
         }
         ScrollRect = GetComponentInChildren<ScrollRect>();
     }
-    public USTEntry SelectedEntry { get; private set;}
-    public USTEntry ManipulatingEntry { get; private set;}
-    public static CustomUST SelectedUST { get; private set;}
+    public bool Confirm(Conflict conflict)
+    {
+        if(conflict.Validate(out CustomUST ust))
+        {
+            Manager.LoadUST(ust);
+            gameObject.SetActive(false);
+            return true;
+        }
+        else return false;
+    }
+    public List<USTEntry> SelectedEntries = new();
+    public static List<string> PersistentEntries = new();
+    public static CustomUST CurrentUST { get; private set;}
     
     void OnEnable()
     {
         Refresh();
     }
-    public void SelectEntry(GameObject obj)
+    public void SelectEntry(USTEntry entry)
     {
-        if(SelectedEntry != null)
+        if(entry != null && !SelectedEntries.Contains(entry))
         {
-            SelectedEntry.GetComponent<Button>().interactable = true;
-            SelectedEntry.Status.text = "";
+            SelectedEntries.Add(entry);
         }
-        if(obj == null)
-        {
-            if(SelectedEntry != null)
-            {
-                SelectedEntry.GetComponent<Button>().interactable = true;
-                SelectedEntry.Status.text = "";
-                SelectedEntry = null;
-                SelectedUST = null;
-            }
-        }
-        else
-        {
-            SelectedEntry = obj.GetComponent<USTEntry>();
-            SelectedEntry.GetComponent<Button>().interactable = false;
-            SelectedEntry.Status.text = "Current";
-            SelectedUST = SelectedEntry.UST;
-        }
+        SelectedEntries.ForEach(x => Debug.Log(x.UST.Name));
+        Debug.Log(SelectedEntries.Count);
     }
-    public void ManipulateEntry(GameObject obj)
+    public void DeselectEntry(USTEntry entry)
     {
-        ManipulatingEntry = obj.GetComponent<USTEntry>();
-        DeleteButton.interactable = true;
-    }
-    public void DeleteEntry()
-    {
-        if(ManipulatingEntry != null)
-        {
-            Manager.DeleteUST(ManipulatingEntry.UST);
-            SelectedUST = null;
-            Destroy(ManipulatingEntry.gameObject);
-            ManipulatingEntry = null;
-        }
-        DeleteButton.interactable = false;
+        if(entry != null && SelectedEntries.Contains(entry)) SelectedEntries.Remove(entry);
+        SelectedEntries.ForEach(x => Debug.Log(x.UST.Name));
+        Debug.Log(SelectedEntries.Count);
     }
     public void AddNew()
     {
@@ -128,16 +147,15 @@ public class USTSelectionScreen : MonoBehaviour
             GameObject newEntry = Instantiate(EntryPrefab, ScrollRect.content);
             USTEntry ustEntry = newEntry.GetComponent<USTEntry>();
             ustEntry.SetData(entry);
-            if(SelectedUST != null && SelectedUST.Equals(entry))
+            if(CurrentUST != null)
             {
-                newEntry.GetComponent<Button>().interactable = false;
-                ustEntry.Status.text = "Current";
-                SelectedEntry = ustEntry;
-                SelectedUST = SelectedEntry.UST;
+                if(PersistentEntries.Contains(entry.Hash))
+                {
+                    ustEntry.Select();
+                }
             }
             else newEntry.GetComponent<Button>().interactable = true;
             Entries.Add(newEntry.GetComponent<RectTransform>());
         }
-        Data = data;
     }
 }
