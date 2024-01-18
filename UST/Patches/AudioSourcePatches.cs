@@ -86,7 +86,7 @@ namespace USTManager.Patches
         [HarmonyPatch(typeof(AudioSource), "clip", MethodType.Setter), HarmonyPrefix]
         public static void set_clip(AudioSource __instance, AudioClip value)
         {
-            if(!Manager.IsEnabled) return true;
+            if(!Manager.IsEnabled) return;
             Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value);
             //Logging.Log(__instance.name + ": set_clip: " + value??"null");
         }
