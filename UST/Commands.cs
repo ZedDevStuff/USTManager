@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
+using USTManager.Utility;
 
 namespace USTManager.Commands
 {
@@ -32,7 +34,7 @@ namespace USTManager.Commands
         public void Execute(GameConsole.Console con, string[] args)
         {
             Manager.IsEnabled = !Manager.IsEnabled;
-            con.PrintLine("UST is now " + Manager.IsEnabled);
+            Logging.Log("UST is now " + Manager.IsEnabled);
         }
     }
     public class USTDebug : ICommand
@@ -62,7 +64,7 @@ namespace USTManager.Commands
         public void Execute(GameConsole.Console con, string[] args)
         {
             Manager.IsDebug = !Manager.IsDebug;
-            con.PrintLine("UST Debug is now " + Manager.IsDebug);
+            Logging.Log("UST Debug is now " + Manager.IsDebug);
         }
     }
 }

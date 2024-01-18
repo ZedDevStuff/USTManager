@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections;
 using TMPro;
 using UnityEngine.Animations;
+using USTManager.Utility;
 
 namespace USTManager.Patches
 {
@@ -17,7 +18,7 @@ namespace USTManager.Patches
             var data = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(AudioSource));
             foreach(AudioSource source in data)
             {
-                if(Manager.IsDebug && source.clip != null && source.playOnAwake && !source.gameObject.activeInHierarchy) Debug.Log($"PlayOnAwake ({source.gameObject.name}): {source.clip.name}");
+                if(Manager.IsDebug && source.clip != null && source.playOnAwake && !source.gameObject.activeInHierarchy) Logging.Log($"PlayOnAwake ({source.gameObject.name}): {source.clip.name}");
                 if(source.clip != null)
                 {
                     Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
@@ -31,7 +32,7 @@ namespace USTManager.Patches
             if (!Manager.IsEnabled) return true;
             if(Manager.IsDebug)
             {
-                Debug.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
+                Logging.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
                 if(__instance.clip != null)
                 {
                     if(__instance.name.Contains("Theme") || __instance.name.Contains("Music"))
@@ -59,7 +60,7 @@ namespace USTManager.Patches
             if (!Manager.IsEnabled) return true;
             if(Manager.IsDebug)
             {
-                Debug.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
+                Logging.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
                 if(__instance.clip != null)
                 {
                     if(__instance.name.Contains("Theme") || __instance.name.Contains("Music"))
@@ -87,7 +88,7 @@ namespace USTManager.Patches
         {
             if(!Manager.IsEnabled) return true;
             return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value, null);
-            //Debug.Log(__instance.name + ": set_clip: " + value??"null");
+            //Logging.Log(__instance.name + ": set_clip: " + value??"null");
         }
         [HarmonyPatch(typeof(GameObject), "SetActive"), HarmonyPrefix]
         public static bool SetActive(GameObject __instance, bool value)
@@ -113,7 +114,7 @@ namespace USTManager.Patches
             if(!Manager.IsEnabled) return;
             if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
             {
-                if(Manager.IsDebug) Debug.Log($"Crossfade: {source.clip.name} in {SceneHelper.CurrentScene}");
+                if(Manager.IsDebug) Logging.Log($"Crossfade: {source.clip.name} in {SceneHelper.CurrentScene}");
                 Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
                 if(source.playOnAwake) source.Play();
             }
@@ -127,12 +128,12 @@ namespace USTManager.Patches
         }
         public static void HandleInstantiate(GameObject obj)
         {
-            Debug.Log($"Instantiating {obj.name} in {SceneHelper.CurrentScene}");
+            Logging.Log($"Instantiating {obj.name} in {SceneHelper.CurrentScene}");
             if(!Manager.IsEnabled) return;
             AudioSource source = obj.GetComponentInChildren<AudioSource>();
             if(source != null)
             {
-                Debug.Log($"Instantiating {source.clip.name} in {SceneHelper.CurrentScene}");
+                Logging.Log($"Instantiating {source.clip.name} in {SceneHelper.CurrentScene}");
                 Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
             }
         }

@@ -32,6 +32,14 @@ namespace USTManager
                     {
                         ust.Path = file.Directory.FullName;
                         ust.Hash = Hash128.Compute(ust.Path).ToString();
+                        ust.Levels = ust.Levels.Select(level => 
+                        {
+                            return new KeyValuePair<string, List<CustomUST.Descriptor>>(level.Key, level.Value.Select(desc => 
+                            {
+                                desc.Path = Path.Combine(ust.Path,desc.Path);
+                                return desc;
+                            }).ToList());
+                        }).ToDictionary(x => x.Key, x => x.Value);
                         string iconPath = Path.Combine(file.Directory.FullName,"icon.png");
                         if(File.Exists(iconPath))
                         {
@@ -46,7 +54,7 @@ namespace USTManager
                 }
                 catch
                 {
-                    Debug.LogError($"[USTManager] Failed to load UST {file.Name}: Invalid JSON");
+                    Logging.LogError($"Failed to load UST {file.Name}: Invalid JSON");
                 }
             }
         } 
@@ -67,7 +75,7 @@ namespace USTManager
                 {
                     if(!ust.IsMerged && !File.Exists(Path.Combine(path,desc.Path)))
                     {
-                        Debug.Log("Skipping");
+                        Logging.Log("Skipping");
                         continue;
                     }
                     var d = clips.Where(x => x.Value.name == "[UST] " + Path.GetFileNameWithoutExtension(desc.Path));
@@ -76,30 +84,30 @@ namespace USTManager
                         if(level.Key == "global")
                         {
                             clips.Add(desc.Part, d.First().Value);
-                            Debug.Log($"[USTManager] Adding clip {d.First().Value.name}");
+                            Logging.Log($"Adding clip {d.First().Value.name}");
                         }
                         else
                         {
                             clips.Add($"{level.Key}:{desc.Part}", d.First().Value);
-                            Debug.Log($"[USTManager] Adding clip {level.Key+":"+desc.Part}");
+                            Logging.Log($"Adding clip {level.Key+":"+desc.Part}");
                         }
                         continue;
                     }
-                    AudioClip clip = ust.IsMerged ? Loader.LoadClipFromPath(desc.Path) : Loader.LoadClipFromPath(Path.Combine(path,desc.Path));
+                    AudioClip clip = Loader.LoadClipFromPath(desc.Path);
                     if(clip != null)
                     {
                         if(level.Key == "global")
                         {
                             clips.Add(desc.Part, clip);
-                            Debug.Log($"[USTManager] Adding clip {clip.name}");
+                            Logging.Log($"Adding clip {clip.name}");
                         }
                         else
                         {
                             clips.Add($"{level.Key}:{desc.Part}", clip);
-                            Debug.Log($"[USTManager] Adding clip {level.Key+":"+desc.Part}");
+                            Logging.Log($"Adding clip {level.Key+":"+desc.Part}");
                         }
                     }
-                    else Debug.Log("Something went wrong with this clip");
+                    else Logging.Log("Something went wrong with this clip");
                 }
             }
             if(clips.Count > 0)
