@@ -51,7 +51,7 @@ namespace USTManager.Patches
 
                 }
             }
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null, null);
+            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null);
         }
         [HarmonyPatch(typeof(AudioSource), "Play", []), HarmonyPrefix]
         public static bool Play(AudioSource __instance)
@@ -79,14 +79,14 @@ namespace USTManager.Patches
 
                 }
             }
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null, null);
+            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null);
         }
 
         [HarmonyPatch(typeof(AudioSource), "clip", MethodType.Setter), HarmonyPrefix]
         public static bool set_clip(AudioSource __instance, AudioClip value)
         {
             if(!Manager.IsEnabled) return true;
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value, null);
+            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value);
             //Debug.Log(__instance.name + ": set_clip: " + value??"null");
         }
         [HarmonyPatch(typeof(GameObject), "SetActive"), HarmonyPrefix]
@@ -103,7 +103,7 @@ namespace USTManager.Patches
             }
             else if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
             {
-                return Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
+                return Manager.HandleAudio(SceneHelper.CurrentScene, source, null);
             }
             return true;
         }
@@ -114,7 +114,7 @@ namespace USTManager.Patches
             if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
             {
                 if(Manager.IsDebug) Debug.Log($"Crossfade: {source.clip.name} in {SceneHelper.CurrentScene}");
-                Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
+                Manager.HandleAudio(SceneHelper.CurrentScene, source, null);
                 if(source.playOnAwake) source.Play();
             }
         }
@@ -122,8 +122,7 @@ namespace USTManager.Patches
         public static bool Change(MusicChanger __instance)
         {
             if(!Manager.IsEnabled) return true;
-            //return Manager.HandleMusicChanger(SceneHelper.CurrentScene, __instance);
-            return Manager.HandleAudio(SceneHelper.CurrentScene, null, null, __instance);
+            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance);
         }
         public static void HandleInstantiate(GameObject obj)
         {
@@ -133,7 +132,7 @@ namespace USTManager.Patches
             if(source != null)
             {
                 Debug.Log($"Instantiating {source.clip.name} in {SceneHelper.CurrentScene}");
-                Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
+                Manager.HandleAudio(SceneHelper.CurrentScene, source, null);
             }
         }
 
