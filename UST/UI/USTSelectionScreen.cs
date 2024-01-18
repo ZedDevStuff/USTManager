@@ -12,9 +12,8 @@ public class USTSelectionScreen : MonoBehaviour
 {
     private static List<RectTransform> Entries = new List<RectTransform>();
     private ScrollRect ScrollRect;
-    [SerializeField] private GameObject EntryPrefab;
-    [SerializeField] private Button CreateButton, OpenFolderButton, RefreshButton, ExitButton, ConfirmButton;
-    private static Conflict Conflict = null;
+    private GameObject EntryPrefab;
+    private Button CreateButton, OpenFolderButton, RefreshButton, ExitButton, ConfirmButton;
 
     private void Awake()
     {
@@ -58,7 +57,6 @@ public class USTSelectionScreen : MonoBehaviour
             ConfirmButton = transform.GetChild(2).GetComponent<Button>();
             ConfirmButton.onClick.AddListener(() => 
             {
-                OpenFolderButton.interactable = false;
                 if(SelectedEntries.Count != 0) 
                 {
                     if(SelectedEntries.Count == 1)
@@ -81,7 +79,8 @@ public class USTSelectionScreen : MonoBehaviour
                         }
                         else
                         {
-                            // TODO: Show conflict resolution screen
+                            GameObject screen = Instantiate(Plugin.ConflictResolutionScreenPrefab, transform);
+                            screen.AddComponent<ConflictResolutionScreen>().Setup(conflict);
                             return;
                         }
                     }
@@ -102,6 +101,10 @@ public class USTSelectionScreen : MonoBehaviour
         if(conflict.Validate(out CustomUST ust))
         {
             Manager.LoadUST(ust);
+            CurrentUST = ust;
+            PersistentEntries.Clear();
+            SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Hash));
+            SelectedEntries.Clear();
             gameObject.SetActive(false);
             return true;
         }
@@ -126,18 +129,15 @@ public class USTSelectionScreen : MonoBehaviour
         {
             SelectedEntries.Add(entry);
         }
-        Debug.Log($"{SelectedEntries.Count} entries selected");
     }
     public void DeselectEntry(USTEntry entry)
     {
         if(entry != null && SelectedEntries.Contains(entry)) SelectedEntries.Remove(entry);
-        Debug.Log($"{SelectedEntries.Count} entries selected");
     }
     public void AddNew()
     {
         // Later will open another screen to create a custom UST
     }
-
     public void Refresh()
     {
         Manager.CheckUSTs();

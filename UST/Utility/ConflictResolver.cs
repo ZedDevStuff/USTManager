@@ -17,6 +17,7 @@ namespace USTManager.Utility
                 IsMerged = true,
                 Levels = new()
             };
+            
             foreach(CustomUST ust in USTs)
             {
                 foreach(var level in ust.Levels)
@@ -99,17 +100,42 @@ namespace USTManager.Utility
             this.original = original;
             Conflicts = conflicts;
         }
+        public void Resolve(string key, CustomUST UST)
+        {
+            if(Conflicts.ContainsKey(key))
+            {
+                if(Conflicts[key].Contains(UST))
+                {
+                    Logging.Log($"Resolved conflict for {key} with {UST.Name}");
+                    if(Merged.ContainsKey(key)) Merged[key] = UST;
+                    else Merged.Add(key, UST);
+                    
+                }
+            }
+        }
         public bool Validate(out CustomUST UST)
         {
             if(ConflictCount == 0 || SolvedCount == ConflictCount)
             {
-                Debug.WriteLine("No conflicts");
+                Logging.Log("No conflicts");
+                foreach(var entry in Merged)
+                {
+                    if(entry.Key.FastStartsWith("global:"))
+                    {
+                        if(original.Levels.ContainsKey("global"))
+                        {
+                            original.Levels["global"].AddRange(entry.Value.Levels["global"]);
+                        }
+                        else original.Levels.Add("global",entry.Value.Levels["global"]);
+                    }
+                    else original.Levels[entry.Key] = entry.Value.Levels[entry.Key];
+                }
                 UST = original;
                 return true;
             }
             else
             {
-                Debug.WriteLine("Conflict resolution isn't supported yet");
+                Logging.Log("Conflicts not solved");
                 UST = null;
                 return false;
             }

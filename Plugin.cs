@@ -16,14 +16,15 @@ using USTManager.Commands;
 using TMPro;
 using UnityEngine.UI;
 using USTManager.Misc;
+using USTManager.Utility;
 
 namespace USTManager
 {
-    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.2.0")]
+    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.3.0")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir;
-        public static GameObject DebugTextPrefab, MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab;
+        public static GameObject DebugTextPrefab, MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab, ConflictEntryPrefab, ConflictResolutionScreenPrefab, ToastPrefab;
         private void Awake()
         {
             instance = this;
@@ -50,6 +51,10 @@ namespace USTManager
             entry.Status = SelectionScreenEntryPrefab.transform.GetChild(0).GetChild(0).GetComponent<TMP_Text>();
             SelectionScreenPrefab = bundle.LoadAsset<GameObject>("OptionMenu");
             SelectionScreenPrefab.AddComponent<USTSelectionScreen>();
+            ConflictEntryPrefab = bundle.LoadAsset<GameObject>("Conflict");
+            ConflictResolutionScreenPrefab = bundle.LoadAsset<GameObject>("ConflictResolutionScreen");
+            ToastPrefab = bundle.LoadAsset<GameObject>("Popup");
+            ToastPrefab.AddComponent<Toast>();
             Console.Instance.RegisterCommand(new USTToggle());
             Console.Instance.RegisterCommand(new USTDebug());
             CreateTemplate();
