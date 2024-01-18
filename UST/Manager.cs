@@ -183,6 +183,10 @@ namespace USTManager
                 if(key != null && CustomUST.ContainsKey(key))
                 {
                     source.clip = CustomUST[key];
+                    if(key is "2-4:boss1" or "2-4:boss2" or "7-1:boss2")
+                    {
+                        source.pitch = 1f;
+                    }
                 }
             }
         }
@@ -206,312 +210,136 @@ namespace USTManager
             }
             return null;
         }
-        public static string Handle0_5(AudioSource source, AudioClip clip)
+        public static string Handle0_5(AudioSource source, AudioClip clip) => source.clip.name switch
         {
-            if(source.clip.name == "Cerberus A")
-            {
-                return "0-5:boss1";
-            }
-            if(source.clip.name == "Cerberus B")
-            {
-                return "0-5:boss2";
-            }
-            return null;
-        }
-        public static string Handle1_4(AudioSource source, AudioClip clip)
+            "Cerberus A" => "0-5:boss1",
+            "Cerberus B" => "0-5:boss2",
+            _ => null
+        };
+        public static string Handle1_4(AudioSource source, AudioClip clip) => source.clip.name switch
         {
-            if(source.clip.name == "V2 Intro")
-            {
-                return "1-4:intro";
-            }
-            else if(source.clip.name == "V2 1-4")
-            {
-                return "1-4:boss";
-            }
-            return null;
-        }
-        public static string Handle2_4(AudioSource source, AudioClip clip)
+            "V2 Intro" => "1-4:intro",
+            "V2 1-4" => "1-4:boss",
+            _ => null
+        };
+        public static string Handle2_4(AudioSource source, AudioClip clip) => source.clip.name switch
         {
-            if(source.clip.name == "Minos Corpse A")
-            {
-                source.pitch = 1f;
-                return "2-4:boss1";
-            }
-            else if(source.clip.name == "Minos Corpse B")
-            {
-                source.pitch = 1f;
-                return "2-4:boss2";
-            }
-            return null;
-        }
-        public static string Handle3_1(AudioSource source, AudioClip clip)
+            "Minos Corpse A" => "2-4:boss1",
+            "Minos Corpse B" => "2-4:boss2",
+            _ => null
+        };
+        public static string Handle3_1(AudioSource source, AudioClip clip) => source.clip.name switch
         {
-            if(source.name == "CleanTheme")
-            {
-                if(source.clip.name == "3-1 Guts Clean")
-                {
-                    return "3-1:clean1";
-                }
-                else if(source.clip.name == "3-1 Glory Clean")
-                {
-                    return "3-1:clean2";
-                }
-            }
-            else if(source.name == "BattleTheme" || source.name == "BossTheme")
-            {
-                if(source.clip.name == "3-1 Guts")
-                {
-                    return "3-1:battle1";
-                }
-                else if(source.clip.name == "3-1 Glory")
-                {
-                    return "3-1:battle2";
-                }
-            }
-            return null;
-        }
-        public static string Handle3_2(AudioSource source, AudioClip clip)
+            "3-1 Guts Clean" => "3-1:clean1",
+            "3-1 Glory Clean" => "3-1:clean2",
+            "3-1 Guts" => "3-1:battle1",
+            "3-1 Glory" => "3-1:battle2",
+            _ => null,
+        };
+        public static string Handle3_2(AudioSource source, AudioClip clip) => source.name switch
         {
-            // Music 1 / Flesh Ambiance
-            // Music 2 / Gabriel 3-2 Intro
-            // Music 3 / Gabriel 3-2
-            if(source.name == "Music 3")
-            {
-                return "3-2:boss";
-            }
-            return null;
-        }
-        public static string Handle4_4(AudioSource source, AudioClip clip)
+            "Music 1" => "3-2:intro1", // Flesh Ambiance
+            "Music 2" => "3-2:intro2", // Gabriel 3-2 Intro
+            "Music 3" => "3-2:boss", // Gabriel 3-2
+            _ => null,
+        };
+        public static string Handle4_4(AudioSource source, AudioClip clip) => source.clip.name switch
         {
-            if(source.clip.name.Contains("V2 4-4"))
-            {
-                return "4-4:boss";
-            }
-            return null;
-        }
-        public static string Handle5_2(AudioSource source, AudioClip clip)
+            "V2 4-4" => "4-4:boss",
+            _ => null,
+        };
+
+        public static string Handle5_2(AudioSource source, AudioClip clip) => source.clip.name switch
         {
-            if(source.clip.name == "Ferryman A")
-            {
-                return "5-2:boss1";
-            }
-            else if(source.clip.name == "Ferryman B")
-            {
-                return "5-2:boss2";
-            }
-            else if(source.clip.name == "Ferryman C")
-            {
-                return "5-2:boss3";
-            }
-            return null;
-        }
-        public static string Handle5_3(AudioSource source, AudioClip clip)
+            "Ferryman A" => "5-2:boss1",
+            "Ferryman B" => "5-2:boss2",
+            "Ferryman C" => "5-2:boss3",
+            _ => null
+        };
+        public static string Handle5_3(AudioSource source, AudioClip clip) => source.name switch
         {
-            if(source.name == "CleanTheme")
-            {
-                if(source.clip.name.Contains("Aftermath"))
-                {
-                    // 5-3 Aftermath Intro
-                    // 5-3 Aftermath Clean
-                    return "5-3:clean2";
-                }
-                else
-                {
-                    // 5-3 Clean
-                    return "5-3:clean1";
-                }
-            }
-            else if(source.name == "BattleTheme" || source.name == "BossTheme")
-            {
-                if(source.clip.name.Contains("Aftermath"))
-                {
-                    // 5-3 Aftermath Intro
-                    // 5-3 Aftermath
-                    return "5-3:battle2";
-                }
-                else
-                {
-                    // 5-3
-                    return "5-3:battle1";
-                }
-            }
-            return null;
-        }
-        public static string Handle5_4(AudioSource source, AudioClip clip)
+            // 5-3 Clean, 5-3 Aftermath Intro, 5-3 Aftermath Clean
+            "CleanTheme" => source.clip.name.Contains("Aftermath") ? "5-3:clean2" : "5-3:clean1",
+            // 5-3, 5-3 Aftermath Intro, 5-3 Aftermath
+            "BattleTheme" or "BossTheme" => source.clip.name.Contains("Aftermath") ? "5-3:battle2" : "5-3:battle1",
+            _ => null,
+        };
+        public static string Handle5_4(AudioSource source, AudioClip clip) => source.name switch
         {
-            if(source.name == "Music 1")
-            {
-                // Leviathan A
-                return "5-4:boss1";
-            }
-            if(source.name == "Music 2")
-            {
-                // Leviathan B
-                return "5-4:boss2";
-            }
-            return null;
-        }
+            "Music 1" => "5-4:boss1", // Leviathan A
+            "Music 2" => "5-4:boss2", // Leviathan B
+            _ => null
+        };
         public static string Handle6_1(AudioSource source, AudioClip clip)
         {
-            if(source.name == "CleanTheme")
+            return source.name switch
             {
                 // CleanTheme / 6-1 Clean
-                if(source.clip.name.Contains("6-1"))
-                {
-                    return "6-1:clean";
-                }
                 // CleanTheme / Deep Drone 1
-            }
-            else if(source.name == "BattleTheme")
-            {
+                "CleanTheme" => source.clip.name.Contains("6-1") ? "6-1:clean" : null,
+
                 // BattleTheme / 6-1
-                if(source.clip.name.Contains("6-1"))
-                {
-                    return "6-1:battle";
-                }
                 // BattleTheme / Deep Drone 3B
-            }
-            else if(source.name == "BossTheme")
-            {
-                if(source.clip.name.Contains("6-1"))
-                {
-                    // BossTheme / 6-1
-                    return "6-1:battle";
-                }
+                // BossTheme / 6-1
                 // BossTheme / Deep Drone 3
-            }
-            else if(source.name == "ClimaxMusic")
-            {
+                "BattleTheme" or "BossTheme" => source.clip.name.Contains("6-1") ? "6-1:battle" : null,
+
                 // ClimaxMusic / 6-1 Hall of Sacreligious Remains
-                return "6-1:boss";
-            }
-            return null;
+                "ClimaxMusic" => "6-1:boss",
+
+                _ => null,
+            };
         }
-        public static string Handle6_2(AudioSource source, AudioClip clip)
+        public static string Handle6_2(AudioSource source, AudioClip clip) => source.name switch
         {
-            if(source.name == "BossMusic")
-            {
-                // BossMusic / Gabriel 6-2
-                return "6-2:boss";
-            }
-            return null;
-        }
-        public static string Handle7_1(AudioSource source, AudioClip clip)
+            "BossMusic" => "6-2:boss", // Gabriel 6-2
+            _ => null
+        };
+        public static string Handle7_1(AudioSource source, AudioClip clip) => source.name switch
         {
-            // Wind / WindLoop
+            "CleanTheme" => "7-1:clean", // 7-1 Clean
+            "BattleTheme" => "7-1:battle", // 7-1
+            "MinotaurPhase1Music" => "7-1:boss1", // Minotaur A
+            "MinotaurPhase2Music" => "7-2:boss2", // Minotaur B
+            // Wind / Windloop
             // IntroMusic / 7-1 Intro
             // MinotaurIntroMusic / MinotaurIntro
-            if(source.name == "CleanTheme")
-            {
-                // 7-1 Clean
-                return "7-1:clean";
-            }
-            else if(source.name == "BattleTheme")
-            {
-                // 7-1
-                return "7-1:battle";
-            }
-            else if(source.clip.name == "Minotaur A")
-            {
-                // MinotaurPhase1Music / Minotaur A
-                return "7-1:boss1";
-            }
-            else if(source.clip.name == "Minotaur B")
-            {
-                // MinotaurPhase2Music / Minotaur B
-                source.pitch = 1f;
-                return "7-1:boss2";
-            }
-            return null;
-        }
-        public static string Handle7_2(AudioSource source, AudioClip clip)
+            _ => null,
+        };
+        public static string Handle7_2(AudioSource source, AudioClip clip) => source.name switch
         {
-            if(source.name == "CleanTheme")
-            {
-                if(source.clip.name.Contains("Intro"))
-                {
-                    // 7-2 Intro Clean
-                    return "7-2:clean1";
-                }
-                else
-                {
-                    // 7-2 Clean
-                    return "7-2:clean2";
-                }
-            }
-            else if(source.name == "BattleTheme" || source.name == "BossTheme")
-            {
-                if(source.clip.name.Contains("Intro"))
-                {
-                    // 7-2 Intro Battle
-                    return "7-2:battle1";
-                }
-                else
-                {
-                    // 7-2
-                    return "7-2:battle2";
-                }
-            }
-            return null;
-        }
-        public static string Handle7_3(AudioSource source, AudioClip clip)
+            // 7-2 Intro Clean, 7-2 Clean
+            "CleanTheme" => source.clip.name.Contains("Intro") ? "7-2:clean1" : "7-2:clean2",
+            // 7-2 Intro Battle, 7-2
+            "BattleTheme" or "BossTheme" => source.clip.name.Contains("Intro") ? "7-2:battle1" : "7-2:battle2",
+            _ => null,
+        };
+        public static string Handle7_3(AudioSource source, AudioClip clip) => source.name switch
         {
+            // 7-3 Intro Clean, 7-3 Clean
+            "CleanTheme" => source.clip.name.Contains("Intro") ? "7-3:clean1" : "7-3:clean2",
+            // 7-3 Intro Clean, 7-3
+            "BattleTheme" or "BossTheme" => source.clip.name.Contains("Intro") ? "7-3:battle1" : "7-3:battle2",
             // Wind / WindLoopHaunted
             // Drone3 / MollyCorrupted4
-            if(source.name == "CleanTheme")
-            {
-                if(source.clip.name.Contains("Intro"))
-                {
-                    // 7-3 Intro Clean
-                    return "7-3:clean1";
-                }
-                else
-                {
-                    // 7-3 Clean
-                    return "7-3:clean2";
-                }
-            }
-            else if(source.name == "BattleTheme" || source.name == "BossTheme")
-            {
-                if(source.clip.name.Contains("Intro"))
-                {
-                    // 7-3 Intro Clean
-                    return "7-3:battle1";
-                }
-                else
-                {
-                    // 7-3
-                    return "7-3:battle2";
-                }
-            }
-            return null;
-        }
-        public static string Handle7_4(AudioSource source, AudioClip clip)
+            _ => null,
+        };
+        // not currently supported
+        public static string Handle7_4(AudioSource source, AudioClip clip) => null;
+        public static string HandleP_1(AudioSource source, AudioClip clip) => source.clip.name switch
         {
-            // not currently supported
-            return null;
-        }
-        public static string HandleP_1(AudioSource source, AudioClip clip)
-        {
+            // Chaos / Flesh Prison
+            "Flesh Prison" => "P-1:boss1",
+
+            // IntroMusic / Minos Prime Intro
+            // Music 3 / Minos Prime
+            "Minos Prime Intro" or "Minos Prime" => "P-1:boss2",
+
             // Sourire / Sourire d'avril
-            if(source.name == "Chaos")
-            {
-                // Chaos / Flesh Prison
-                return "P-1:boss1";
-            }
-            if(source.clip.name.Contains("Minos"))
-            {
-                // IntroMusic / Minos Prime Intro
-                // Music 3 / Minos Prime
-                return "P-1:boss2";
-            }
-            return null;
-        }
-        public static string HandleP_2(AudioSource source, AudioClip clip)
-        {
-            // not currently supported
-            return null;
-        }
+            _ => null,
+        };
+        // not currently supported
+        public static string HandleP_2(AudioSource source, AudioClip clip) => null;
 
         public static bool HandleAudio(string level, MusicChanger changer)
         {
