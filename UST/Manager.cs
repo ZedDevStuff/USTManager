@@ -32,15 +32,15 @@ namespace USTManager
                     {
                         ust.Path = file.Directory.FullName;
                         ust.Hash = Hash128.Compute(ust.Path).ToString();
-                        ust.Levels = ust.Levels.Select(level => 
+                        ust.Levels = ust.Levels.Select(level =>
                         {
-                            return new KeyValuePair<string, List<CustomUST.Descriptor>>(level.Key, level.Value.Select(desc => 
+                            return new KeyValuePair<string, List<CustomUST.Descriptor>>(level.Key, level.Value.Select(desc =>
                             {
-                                desc.Path = Path.Combine(ust.Path,desc.Path);
+                                desc.Path = Path.Combine(ust.Path, desc.Path);
                                 return desc;
                             }).ToList());
                         }).ToDictionary(x => x.Key, x => x.Value);
-                        string iconPath = Path.Combine(file.Directory.FullName,"icon.png");
+                        string iconPath = Path.Combine(file.Directory.FullName, "icon.png");
                         if(File.Exists(iconPath))
                         {
                             Texture2D icon = new Texture2D(100, 100);
@@ -89,7 +89,7 @@ namespace USTManager
                         else
                         {
                             clips.Add($"{level.Key}:{desc.Part}", d.First().Value);
-                            Logging.Log($"Adding clip {level.Key+":"+desc.Part}");
+                            Logging.Log($"Adding clip {level.Key + ":" + desc.Part}");
                         }
                         continue;
                     }
@@ -104,7 +104,7 @@ namespace USTManager
                         else
                         {
                             clips.Add($"{level.Key}:{desc.Part}", clip);
-                            Logging.Log($"Adding clip {level.Key+":"+desc.Part}");
+                            Logging.Log($"Adding clip {level.Key + ":" + desc.Part}");
                         }
                     }
                     else Logging.Log("Something went wrong with this clip");
@@ -160,21 +160,21 @@ namespace USTManager
             {"P-1",HandleP_1},
             {"P-2",HandleP_2},
         };
-        public static bool HandleAudio(string level, AudioSource source, AudioClip clip)
+        public static void HandleAudio(string level, AudioSource source, AudioClip clip)
         {
-            if(clip != null && clip.name.Contains("[UST]")) return true;
+            if(clip != null && clip.name.Contains("[UST]")) return;
             if(source != null && source.clip != null)
             {
-                if(source.clip.name.Contains("[UST]")) return true;
+                if(source.clip.name.Contains("[UST]")) return;
                 if(CustomUST.ContainsKey(source.clip.name))
                 {
                     source.clip = CustomUST[source.clip.name];
-                    return true;
+                    return;
                 }
             }
             string actualLevel = level.Replace("Level ", "");
             if(Handlers.ContainsKey(actualLevel)) Handlers[actualLevel](source, clip);
-            return true;
+            return;
         }
         public static void DefaultHandler(string level, AudioSource source, AudioClip clip)
         {

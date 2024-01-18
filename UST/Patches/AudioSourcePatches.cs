@@ -27,9 +27,9 @@ namespace USTManager.Patches
         }*/
 
         [HarmonyPatch(typeof(AudioSource), "Play", [typeof(double)]), HarmonyPrefix]
-        public static bool Play(AudioSource __instance, double delay)
+        public static void Play(AudioSource __instance, double delay)
         {
-            if(!Manager.IsEnabled) return true;
+            if(!Manager.IsEnabled) return;
             if(Manager.IsDebug)
             {
                 Logging.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
@@ -52,12 +52,12 @@ namespace USTManager.Patches
 
                 }
             }
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null);
+            Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null);
         }
         [HarmonyPatch(typeof(AudioSource), "Play", []), HarmonyPrefix]
-        public static bool Play(AudioSource __instance)
+        public static void Play(AudioSource __instance)
         {
-            if(!Manager.IsEnabled) return true;
+            if(!Manager.IsEnabled) return;
             if(Manager.IsDebug)
             {
                 Logging.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
@@ -80,20 +80,20 @@ namespace USTManager.Patches
 
                 }
             }
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null);
+            Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null);
         }
 
         [HarmonyPatch(typeof(AudioSource), "clip", MethodType.Setter), HarmonyPrefix]
-        public static bool set_clip(AudioSource __instance, AudioClip value)
+        public static void set_clip(AudioSource __instance, AudioClip value)
         {
             if(!Manager.IsEnabled) return true;
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value);
+            Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value);
             //Logging.Log(__instance.name + ": set_clip: " + value??"null");
         }
         [HarmonyPatch(typeof(GameObject), "SetActive"), HarmonyPrefix]
-        public static bool SetActive(GameObject __instance, bool value)
+        public static void SetActive(GameObject __instance, bool value)
         {
-            if(!Manager.IsEnabled) return true;
+            if(!Manager.IsEnabled) return;
             if(SceneHelper.CurrentScene == "Level 5-4" && __instance.name == "Music")
             {
                 foreach(Transform child in __instance.transform)
@@ -104,9 +104,8 @@ namespace USTManager.Patches
             }
             else if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
             {
-                return Manager.HandleAudio(SceneHelper.CurrentScene, source, null);
+                Manager.HandleAudio(SceneHelper.CurrentScene, source, null);
             }
-            return true;
         }
         [HarmonyPatch(typeof(Crossfade), "Awake"), HarmonyPrefix]
         public static void Awake(Crossfade __instance)
