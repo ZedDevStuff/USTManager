@@ -20,7 +20,7 @@ namespace USTManager
         public static List<CustomUST> AllUSTs = new();
         public static void CheckUSTs()
         {
-            FileInfo[] files = Directory.GetFiles(Path.Combine(Plugin.UKPath,"USTs"), "*.ust", SearchOption.AllDirectories).Select(x => new FileInfo(x)).ToArray();
+            FileInfo[] files = Directory.GetFiles(Path.Combine(Plugin.UKPath, "USTs"), "*.ust", SearchOption.AllDirectories).Select(x => new FileInfo(x)).ToArray();
             AllUSTs.Clear();
             foreach(FileInfo file in files)
             {
@@ -32,13 +32,13 @@ namespace USTManager
                     {
                         ust.Path = file.Directory.FullName;
                         ust.Hash = Hash128.Compute(ust.Path).ToString();
-                        string iconPath = Path.Combine(file.Directory.FullName,"icon.png");
+                        string iconPath = Path.Combine(file.Directory.FullName, "icon.png");
                         if(File.Exists(iconPath))
                         {
-                            Texture2D icon = new Texture2D(100,100);
+                            Texture2D icon = new Texture2D(100, 100);
                             if(icon.LoadImage(File.ReadAllBytes(iconPath)))
                             {
-                                ust.Icon = Sprite.Create(icon, new Rect(0,0,icon.width,icon.height), new Vector2(0.5f,0.5f));
+                                ust.Icon = Sprite.Create(icon, new Rect(0, 0, icon.width, icon.height), new Vector2(0.5f, 0.5f));
                             }
                         }
                         AllUSTs.Add(ust);
@@ -49,8 +49,8 @@ namespace USTManager
                     Debug.LogError($"[USTManager] Failed to load UST {file.Name}: Invalid JSON");
                 }
             }
-        } 
-        
+        }
+
         public static void UnloadUST()
         {
             CustomUST.Clear();
@@ -65,7 +65,7 @@ namespace USTManager
             {
                 foreach(var desc in level.Value)
                 {
-                    if(!ust.IsMerged && !File.Exists(Path.Combine(path,desc.Path)))
+                    if(!ust.IsMerged && !File.Exists(Path.Combine(path, desc.Path)))
                     {
                         Debug.Log("Skipping");
                         continue;
@@ -81,11 +81,11 @@ namespace USTManager
                         else
                         {
                             clips.Add($"{level.Key}:{desc.Part}", d.First().Value);
-                            Debug.Log($"[USTManager] Adding clip {level.Key+":"+desc.Part}");
+                            Debug.Log($"[USTManager] Adding clip {level.Key + ":" + desc.Part}");
                         }
                         continue;
                     }
-                    AudioClip clip = ust.IsMerged ? Loader.LoadClipFromPath(desc.Path) : Loader.LoadClipFromPath(Path.Combine(path,desc.Path));
+                    AudioClip clip = ust.IsMerged ? Loader.LoadClipFromPath(desc.Path) : Loader.LoadClipFromPath(Path.Combine(path, desc.Path));
                     if(clip != null)
                     {
                         if(level.Key == "global")
@@ -96,7 +96,7 @@ namespace USTManager
                         else
                         {
                             clips.Add($"{level.Key}:{desc.Part}", clip);
-                            Debug.Log($"[USTManager] Adding clip {level.Key+":"+desc.Part}");
+                            Debug.Log($"[USTManager] Adding clip {level.Key + ":" + desc.Part}");
                         }
                     }
                     else Debug.Log("Something went wrong with this clip");
@@ -121,7 +121,7 @@ namespace USTManager
         public static bool IsDebug = false;
 
         // This is only used because its faster than a 20+ if chain
-        private static Dictionary<string, Func<AudioSource,AudioClip,MusicChanger,bool>> Handlers = new()
+        private static Dictionary<string, Func<AudioSource, AudioClip, MusicChanger, bool>> Handlers = new()
         {
             {"0-1",(source, clip, changer) => DefaultHandler("0-1", source, clip)},
             {"0-2",(source, clip, changer) => DefaultHandler("0-2", source, clip)},
@@ -167,7 +167,7 @@ namespace USTManager
                     return true;
                 }
             }
-            string actualLevel = level.Replace("Level ","");
+            string actualLevel = level.Replace("Level ", "");
             if(Handlers.ContainsKey(actualLevel)) return Handlers[actualLevel](source, clip, changer);
             return true;
         }
@@ -210,7 +210,7 @@ namespace USTManager
             }
             return true;
         }
-        
+
         public static bool Handle1_1(AudioSource source, AudioClip clip, MusicChanger changer)
         {
             if(changer != null)
@@ -511,8 +511,8 @@ namespace USTManager
                     }
                     else
                     {
-                       if(!CustomUST.ContainsKey("5-3:battle1")) return true;
-                        source.clip = CustomUST["5-3:battle1"]; 
+                        if(!CustomUST.ContainsKey("5-3:battle1")) return true;
+                        source.clip = CustomUST["5-3:battle1"];
                     }
                 }
                 else if(source.name.Contains("BossTheme"))
@@ -524,8 +524,8 @@ namespace USTManager
                     }
                     else
                     {
-                       if(!CustomUST.ContainsKey("5-3:battle1")) return true;
-                        source.clip = CustomUST["5-3:battle1"]; 
+                        if(!CustomUST.ContainsKey("5-3:battle1")) return true;
+                        source.clip = CustomUST["5-3:battle1"];
                     }
                 }
             }
@@ -556,7 +556,7 @@ namespace USTManager
                     if(!CustomUST.ContainsKey("6-1:clean")) return true;
                     source.clip = CustomUST["6-1:clean"];
                 }
-                
+
             }
             else if(source.name == "BattleTheme" && !source.clip.name.Contains("[UST]"))
             {
@@ -565,7 +565,7 @@ namespace USTManager
                     if(!CustomUST.ContainsKey("6-1:battle")) return true;
                     source.clip = CustomUST["6-1:battle"];
                 }
-                
+
             }
             else if(source.name == "BossTheme" && !source.clip.name.Contains("[UST]"))
             {

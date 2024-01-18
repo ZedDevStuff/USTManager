@@ -28,7 +28,7 @@ namespace USTManager.Patches
         [HarmonyPatch(typeof(AudioSource), "Play", [typeof(double)]), HarmonyPrefix]
         public static bool Play(AudioSource __instance, double delay)
         {
-            if (!Manager.IsEnabled) return true;
+            if(!Manager.IsEnabled) return true;
             if(Manager.IsDebug)
             {
                 Debug.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
@@ -44,11 +44,11 @@ namespace USTManager.Patches
                         obj.transform.localScale /= 2;
                         obj.GetComponent<TMP_Text>().text = __instance.clip.name;
                         var constraint = obj.GetComponent<RotationConstraint>();
-                        constraint.AddSource(new ConstraintSource(){sourceTransform = CameraController.Instance.transform, weight = 1});
+                        constraint.AddSource(new ConstraintSource() { sourceTransform = CameraController.Instance.transform, weight = 1 });
                         constraint.constraintActive = true;
                         Plugin.RunCoroutine(DestroyAfter(obj, 2f));
-                    } 
-                    
+                    }
+
                 }
             }
             return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null, null);
@@ -56,7 +56,7 @@ namespace USTManager.Patches
         [HarmonyPatch(typeof(AudioSource), "Play", []), HarmonyPrefix]
         public static bool Play(AudioSource __instance)
         {
-            if (!Manager.IsEnabled) return true;
+            if(!Manager.IsEnabled) return true;
             if(Manager.IsDebug)
             {
                 Debug.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
@@ -72,11 +72,11 @@ namespace USTManager.Patches
                         obj.transform.localScale /= 2;
                         obj.GetComponent<TMP_Text>().text = __instance.clip.name;
                         var constraint = obj.GetComponent<RotationConstraint>();
-                        constraint.AddSource(new ConstraintSource(){sourceTransform = CameraController.Instance.transform, weight = 1});
+                        constraint.AddSource(new ConstraintSource() { sourceTransform = CameraController.Instance.transform, weight = 1 });
                         constraint.constraintActive = true;
                         Plugin.RunCoroutine(DestroyAfter(obj, 2f));
-                    } 
-                    
+                    }
+
                 }
             }
             return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null, null);
