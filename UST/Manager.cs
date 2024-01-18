@@ -128,38 +128,6 @@ namespace USTManager
         public static bool IsEnabled = true;
         public static bool IsDebug = false;
 
-        // This is only used because its faster than a 20+ if chain
-        private static Dictionary<string, Func<AudioSource, AudioClip, string>> Handlers = new()
-        {
-            {"0-1",(source, clip) => DefaultHandler("0-1", source)},
-            {"0-2",(source, clip) => DefaultHandler("0-2", source)},
-            {"0-3",(source, clip) => DefaultHandler("0-3", source)},
-            {"0-4",(source, clip) => DefaultHandler("0-4", source)},
-            {"0-5",Handle0_5},
-            {"1-3",(source, clip) => DefaultHandler("1-3", source)},
-            {"1-4",Handle1_4},
-            {"2-1",(source, clip) => DefaultHandler("2-1", source)},
-            {"2-2",(source, clip) => DefaultHandler("2-2", source)},
-            {"2-3",(source, clip) => DefaultHandler("2-3", source)},
-            {"2-4",Handle2_4},
-            {"3-1",Handle3_1},
-            {"3-2",Handle3_2},
-            {"4-1",(source, clip) => DefaultHandler("4-1", source)},
-            {"4-2",(source, clip) => DefaultHandler("4-2", source)},
-            {"4-4",Handle4_4},
-            {"5-1",(source, clip) => DefaultHandler("5-1", source)},
-            {"5-2",Handle5_2},
-            {"5-3",Handle5_3},
-            {"5-4",Handle5_4},
-            {"6-1",Handle6_1},
-            {"6-2",Handle6_2},
-            {"7-1",Handle7_1},
-            {"7-2",Handle7_2},
-            {"7-3",Handle7_3},
-            {"7-4",Handle7_4},
-            {"P-1",HandleP_1},
-            {"P-2",HandleP_2},
-        };
         public static void HandleAudio(string level, AudioSource source, AudioClip clip)
         {
             // clip can be null, but not source or source.clip
@@ -177,16 +145,34 @@ namespace USTManager
             }
 
             string actualLevel = level.Replace("Level ", "");
-            if(Handlers.ContainsKey(actualLevel))
+            string key = actualLevel switch
             {
-                string key = Handlers[actualLevel](source, clip);
-                if(key != null && CustomUST.ContainsKey(key))
+                "0-5" => Handle0_5(source, clip),
+                "1-4" => Handle1_4(source, clip),
+                "2-4" => Handle2_4(source, clip),
+                "3-1" => Handle3_1(source, clip),
+                "3-2" => Handle3_2(source, clip),
+                "4-4" => Handle4_4(source, clip),
+                "5-2" => Handle5_2(source, clip),
+                "5-3" => Handle5_3(source, clip),
+                "5-4" => Handle5_4(source, clip),
+                "6-1" => Handle6_1(source, clip),
+                "6-2" => Handle6_2(source, clip),
+                "7-1" => Handle7_1(source, clip),
+                "7-2" => Handle7_2(source, clip),
+                "7-3" => Handle7_3(source, clip),
+                "7-4" => Handle7_4(source, clip),
+                "P-1" => HandleP_1(source, clip),
+                "P-2" => HandleP_2(source, clip),
+                _ => DefaultHandler(actualLevel, source),
+            };
+
+            if(key != null && CustomUST.ContainsKey(key))
+            {
+                source.clip = CustomUST[key];
+                if(key is "2-4:boss1" or "2-4:boss2" or "7-1:boss2")
                 {
-                    source.clip = CustomUST[key];
-                    if(key is "2-4:boss1" or "2-4:boss2" or "7-1:boss2")
-                    {
-                        source.pitch = 1f;
-                    }
+                    source.pitch = 1f;
                 }
             }
         }
