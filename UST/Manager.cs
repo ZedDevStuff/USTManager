@@ -131,23 +131,23 @@ namespace USTManager
         // This is only used because its faster than a 20+ if chain
         private static Dictionary<string, Action<AudioSource, AudioClip>> Handlers = new()
         {
-            {"0-1",(source, clip) => DefaultHandler("0-1", source, clip)},
-            {"0-2",(source, clip) => DefaultHandler("0-2", source, clip)},
-            {"0-3",(source, clip) => DefaultHandler("0-3", source, clip)},
-            {"0-4",(source, clip) => DefaultHandler("0-4", source, clip)},
+            {"0-1",(source, clip) => DefaultHandler("0-1", source)},
+            {"0-2",(source, clip) => DefaultHandler("0-2", source)},
+            {"0-3",(source, clip) => DefaultHandler("0-3", source)},
+            {"0-4",(source, clip) => DefaultHandler("0-4", source)},
             {"0-5",Handle0_5},
-            {"1-3",(source, clip) => DefaultHandler("1-3", source, clip)},
+            {"1-3",(source, clip) => DefaultHandler("1-3", source)},
             {"1-4",Handle1_4},
-            {"2-1",(source, clip) => DefaultHandler("2-1", source, clip)},
-            {"2-2",(source, clip) => DefaultHandler("2-2", source, clip)},
-            {"2-3",(source, clip) => DefaultHandler("2-3", source, clip)},
+            {"2-1",(source, clip) => DefaultHandler("2-1", source)},
+            {"2-2",(source, clip) => DefaultHandler("2-2", source)},
+            {"2-3",(source, clip) => DefaultHandler("2-3", source)},
             {"2-4",Handle2_4},
             {"3-1",Handle3_1},
             {"3-2",Handle3_2},
-            {"4-1",(source, clip) => DefaultHandler("4-1", source, clip)},
-            {"4-2",(source, clip) => DefaultHandler("4-2", source, clip)},
+            {"4-1",(source, clip) => DefaultHandler("4-1", source)},
+            {"4-2",(source, clip) => DefaultHandler("4-2", source)},
             {"4-4",Handle4_4},
-            {"5-1",(source, clip) => DefaultHandler("5-1", source, clip)},
+            {"5-1",(source, clip) => DefaultHandler("5-1", source)},
             {"5-2",Handle5_2},
             {"5-3",Handle5_3},
             {"5-4",Handle5_4},
@@ -180,7 +180,7 @@ namespace USTManager
             if(Handlers.ContainsKey(actualLevel)) Handlers[actualLevel](source, clip);
             return;
         }
-        public static void DefaultHandler(string level, AudioSource source, AudioClip clip)
+        public static void DefaultHandler(string level, AudioSource source)
         {
             if(source.name == "CleanTheme")
             {
@@ -201,7 +201,6 @@ namespace USTManager
                 }
                 else source.clip = CustomUST[level + ":boss"];
             }
-            return;
         }
         public static void Handle0_5(AudioSource source, AudioClip clip)
         {
@@ -218,12 +217,12 @@ namespace USTManager
         }
         public static void Handle1_4(AudioSource source, AudioClip clip)
         {
-            if(source.clip.name.Contains("V2 Intro"))
+            if(source.clip.name == "V2 Intro")
             {
                 if(!CustomUST.ContainsKey("1-4:intro")) return;
                 source.clip = CustomUST["1-4:intro"];
             }
-            else if(source.clip.name.Contains("V2 1-4"))
+            else if(source.clip.name == "V2 1-4")
             {
                 if(!CustomUST.ContainsKey("1-4:boss")) return;
                 source.clip = CustomUST["1-4:boss"];
@@ -231,13 +230,13 @@ namespace USTManager
         }
         public static void Handle2_4(AudioSource source, AudioClip clip)
         {
-            if(source.clip.name.Contains("Minos Corpse A"))
+            if(source.clip.name == "Minos Corpse A")
             {
                 if(!CustomUST.ContainsKey("2-4:boss1")) return;
                 source.clip = CustomUST["2-4:boss1"];
                 source.pitch = 1f;
             }
-            else if(source.clip.name.Contains("Minos Corpse B"))
+            else if(source.clip.name == "Minos Corpse B")
             {
                 if(!CustomUST.ContainsKey("2-4:boss2")) return;
                 source.clip = CustomUST["2-4:boss2"];
@@ -248,38 +247,25 @@ namespace USTManager
         {
             if(source.name == "CleanTheme")
             {
-                if(source.clip.name.Contains("Guts"))
+                if(source.clip.name == "3-1 Guts Clean")
                 {
                     if(!CustomUST.ContainsKey("3-1:clean1")) return;
                     else source.clip = CustomUST["3-1:clean1"];
                 }
-                else if(source.clip.name.Contains("Glory"))
+                else if(source.clip.name == "3-1 Glory Clean")
                 {
                     if(!CustomUST.ContainsKey("3-1:clean2")) return;
                     else source.clip = CustomUST["3-1:clean2"];
                 }
             }
-            else if(source.name == "BattleTheme")
+            else if(source.name == "BattleTheme" || source.name == "BossTheme")
             {
-                if(source.clip.name.Contains("Guts"))
+                if(source.clip.name == "3-1 Guts")
                 {
                     if(!CustomUST.ContainsKey("3-1:battle1")) return;
                     else source.clip = CustomUST["3-1:battle1"];
                 }
-                else if(source.clip.name.Contains("Glory"))
-                {
-                    if(!CustomUST.ContainsKey("3-1:battle2")) return;
-                    else source.clip = CustomUST["3-1:battle2"];
-                }
-            }
-            else if(source.name == "BossTheme")
-            {
-                if(source.clip.name.Contains("Guts"))
-                {
-                    if(!CustomUST.ContainsKey("3-1:battle1")) return;
-                    else source.clip = CustomUST["3-1:battle1"];
-                }
-                else if(source.clip.name.Contains("Glory"))
+                else if(source.clip.name == "3-1 Glory")
                 {
                     if(!CustomUST.ContainsKey("3-1:battle2")) return;
                     else source.clip = CustomUST["3-1:battle2"];
@@ -288,7 +274,10 @@ namespace USTManager
         }
         public static void Handle3_2(AudioSource source, AudioClip clip)
         {
-            if(source.name.Contains("Music 3"))
+            // Music 1 / Flesh Ambiance
+            // Music 2 / Gabriel 3-2 Intro
+            // Music 3 / Gabriel 3-2
+            if(source.name == "Music 3")
             {
                 if(!CustomUST.ContainsKey("3-2:boss")) return;
                 source.clip = CustomUST["3-2:boss"];
@@ -304,17 +293,17 @@ namespace USTManager
         }
         public static void Handle5_2(AudioSource source, AudioClip clip)
         {
-            if(source.clip.name.Contains("Ferryman A"))
+            if(source.clip.name == "Ferryman A")
             {
                 if(!CustomUST.ContainsKey("5-2:boss1")) return;
                 source.clip = CustomUST["5-2:boss1"];
             }
-            else if(source.clip.name.Contains("Ferryman B"))
+            else if(source.clip.name == "Ferryman B")
             {
                 if(!CustomUST.ContainsKey("5-2:boss2")) return;
                 source.clip = CustomUST["5-2:boss2"];
             }
-            else if(source.clip.name.Contains("Ferryman C"))
+            else if(source.clip.name == "Ferryman C")
             {
                 if(!CustomUST.ContainsKey("5-2:boss3")) return;
                 source.clip = CustomUST["5-2:boss3"];
@@ -322,41 +311,34 @@ namespace USTManager
         }
         public static void Handle5_3(AudioSource source, AudioClip clip)
         {
-            if(source.name.Contains("CleanTheme"))
+            if(source.name == "CleanTheme")
             {
                 if(source.clip.name.Contains("Aftermath"))
                 {
+                    // 5-3 Aftermath Intro
+                    // 5-3 Aftermath Clean
                     if(!CustomUST.ContainsKey("5-3:clean2")) return;
                     source.clip = CustomUST["5-3:clean2"];
                 }
                 else
                 {
+                    // 5-3 Clean
                     if(!CustomUST.ContainsKey("5-3:clean1")) return;
                     source.clip = CustomUST["5-3:clean1"];
                 }
             }
-            else if(source.name.Contains("BattleTheme"))
+            else if(source.name == "BattleTheme" || source.name == "BossTheme")
             {
                 if(source.clip.name.Contains("Aftermath"))
                 {
+                    // 5-3 Aftermath Intro
+                    // 5-3 Aftermath
                     if(!CustomUST.ContainsKey("5-3:battle2")) return;
                     source.clip = CustomUST["5-3:battle2"];
                 }
                 else
                 {
-                    if(!CustomUST.ContainsKey("5-3:battle1")) return;
-                    source.clip = CustomUST["5-3:battle1"];
-                }
-            }
-            else if(source.name.Contains("BossTheme"))
-            {
-                if(source.clip.name.Contains("Aftermath"))
-                {
-                    if(!CustomUST.ContainsKey("5-3:battle2")) return;
-                    source.clip = CustomUST["5-3:battle2"];
-                }
-                else
-                {
+                    // 5-3
                     if(!CustomUST.ContainsKey("5-3:battle1")) return;
                     source.clip = CustomUST["5-3:battle1"];
                 }
@@ -364,13 +346,15 @@ namespace USTManager
         }
         public static void Handle5_4(AudioSource source, AudioClip clip)
         {
-            if(source.name.Contains("Music 1"))
+            if(source.name == "Music 1")
             {
+                // Leviathan A
                 if(!CustomUST.ContainsKey("5-4:boss1")) return;
                 source.clip = CustomUST["5-4:boss1"];
             }
-            if(source.name.Contains("Music 2"))
+            if(source.name == "Music 2")
             {
+                // Leviathan B
                 if(!CustomUST.ContainsKey("5-4:boss2")) return;
                 source.clip = CustomUST["5-4:boss2"];
             }
@@ -379,68 +363,76 @@ namespace USTManager
         {
             if(source.name == "CleanTheme")
             {
+                // CleanTheme / 6-1 Clean
                 if(source.clip.name.Contains("6-1"))
                 {
                     if(!CustomUST.ContainsKey("6-1:clean")) return;
                     source.clip = CustomUST["6-1:clean"];
                 }
-
+                // CleanTheme / Deep Drone 1
             }
             else if(source.name == "BattleTheme")
             {
+                // BattleTheme / 6-1
                 if(source.clip.name.Contains("6-1"))
                 {
                     if(!CustomUST.ContainsKey("6-1:battle")) return;
                     source.clip = CustomUST["6-1:battle"];
                 }
-
+                // BattleTheme / Deep Drone 3B
             }
             else if(source.name == "BossTheme")
             {
                 if(source.clip.name.Contains("6-1"))
                 {
+                    // BossTheme / 6-1
                     if(!CustomUST.ContainsKey("6-1:battle")) return;
                     source.clip = CustomUST["6-1:battle"];
                 }
+                // BossTheme / Deep Drone 3
             }
-            else if(source.name.Contains("ClimaxMusic"))
+            else if(source.name == "ClimaxMusic")
             {
+                // ClimaxMusic / 6-1 Hall of Sacreligious Remains
                 if(!CustomUST.ContainsKey("6-1:boss")) return;
                 source.clip = CustomUST["6-1:boss"];
             }
         }
         public static void Handle6_2(AudioSource source, AudioClip clip)
         {
-            if(source.name.Contains("BossMusic"))
+            if(source.name == "BossMusic")
             {
+                // BossMusic / Gabriel 6-2
                 if(!CustomUST.ContainsKey("6-2:boss")) return;
                 source.clip = CustomUST["6-2:boss"];
             }
         }
         public static void Handle7_1(AudioSource source, AudioClip clip)
         {
-            if(source.name.Contains("CleanTheme"))
+            // Wind / WindLoop
+            // IntroMusic / 7-1 Intro
+            // MinotaurIntroMusic / MinotaurIntro
+            if(source.name == "CleanTheme")
             {
+                // 7-1 Clean
                 if(!CustomUST.ContainsKey("7-1:clean")) return;
                 source.clip = CustomUST["7-1:clean"];
             }
-            else if(source.name.Contains("BattleTheme"))
+            else if(source.name == "BattleTheme")
             {
+                // 7-1
                 if(!CustomUST.ContainsKey("7-1:battle")) return;
                 source.clip = CustomUST["7-1:battle"];
             }
-            else if(source.name.Contains("BossTheme"))
+            else if(source.clip.name == "Minotaur A")
             {
-                if(!CustomUST.ContainsKey("7-1:battle")) return;
-                source.clip = CustomUST["7-1:battle"];
-            }
-            else if(source.clip.name.Contains("Minotaur A"))
-            {
+                // MinotaurPhase1Music / Minotaur A
                 if(!CustomUST.ContainsKey("7-1:boss1")) return;
                 source.clip = CustomUST["7-1:boss1"];
             }
-            else if(source.clip.name.Contains("Minotaur B"))
+            else if(source.clip.name == "Minotaur B")
             {
+                // MinotaurPhase2Music / Minotaur B
                 if(!CustomUST.ContainsKey("7-1:boss2")) return;
                 source.clip = CustomUST["7-1:boss2"];
                 source.pitch = 1f;
@@ -452,37 +444,28 @@ namespace USTManager
             {
                 if(source.clip.name.Contains("Intro"))
                 {
+                    // 7-2 Intro Clean
                     if(!CustomUST.ContainsKey("7-2:clean1")) return;
                     source.clip = CustomUST["7-2:clean1"];
                 }
                 else
                 {
+                    // 7-2 Clean
                     if(!CustomUST.ContainsKey("7-2:clean2")) return;
                     source.clip = CustomUST["7-2:clean2"];
                 }
             }
-            else if(source.name == "BattleTheme")
+            else if(source.name == "BattleTheme" || source.name == "BossTheme")
             {
                 if(source.clip.name.Contains("Intro"))
                 {
+                    // 7-2 Intro Battle
                     if(!CustomUST.ContainsKey("7-2:battle1")) return;
                     source.clip = CustomUST["7-2:battle1"];
                 }
                 else
                 {
-                    if(!CustomUST.ContainsKey("7-2:battle2")) return;
-                    source.clip = CustomUST["7-2:battle2"];
-                }
-            }
-            else if(source.name == "BossTheme")
-            {
-                if(source.clip.name.Contains("Intro"))
-                {
-                    if(!CustomUST.ContainsKey("7-2:battle1")) return;
-                    source.clip = CustomUST["7-2:battle1"];
-                }
-                else
-                {
+                    // 7-2
                     if(!CustomUST.ContainsKey("7-2:battle2")) return;
                     source.clip = CustomUST["7-2:battle2"];
                 }
@@ -490,41 +473,34 @@ namespace USTManager
         }
         public static void Handle7_3(AudioSource source, AudioClip clip)
         {
+            // Wind / WindLoopHaunted
+            // Drone3 / MollyCorrupted4
             if(source.name == "CleanTheme")
             {
                 if(source.clip.name.Contains("Intro"))
                 {
+                    // 7-3 Intro Clean
                     if(!CustomUST.ContainsKey("7-3:clean1")) return;
                     source.clip = CustomUST["7-3:clean1"];
                 }
                 else
                 {
+                    // 7-3 Clean
                     if(!CustomUST.ContainsKey("7-3:clean2")) return;
                     source.clip = CustomUST["7-3:clean2"];
                 }
             }
-            else if(source.name == "BattleTheme")
+            else if(source.name == "BattleTheme" || source.name == "BossTheme")
             {
                 if(source.clip.name.Contains("Intro"))
                 {
+                    // 7-3 Intro Clean
                     if(!CustomUST.ContainsKey("7-3:battle1")) return;
                     source.clip = CustomUST["7-3:battle1"];
                 }
                 else
                 {
-                    if(!CustomUST.ContainsKey("7-3:battle2")) return;
-                    source.clip = CustomUST["7-3:battle2"];
-                }
-            }
-            else if(source.name == "BossTheme")
-            {
-                if(source.clip.name.Contains("Intro"))
-                {
-                    if(!CustomUST.ContainsKey("7-3:battle1")) return;
-                    source.clip = CustomUST["7-3:battle1"];
-                }
-                else
-                {
+                    // 7-3
                     if(!CustomUST.ContainsKey("7-3:battle2")) return;
                     source.clip = CustomUST["7-3:battle2"];
                 }
@@ -537,13 +513,17 @@ namespace USTManager
         }
         public static void HandleP_1(AudioSource source, AudioClip clip)
         {
-            if(source.name.Contains("Chaos"))
+            // Sourire / Sourire d'avril
+            if(source.name == "Chaos")
             {
+                // Chaos / Flesh Prison
                 if(!CustomUST.ContainsKey("P-1:boss1")) return;
                 source.clip = CustomUST["P-1:boss1"];
             }
             if(source.clip.name.Contains("Minos"))
             {
+                // IntroMusic / Minos Prime Intro
+                // Music 3 / Minos Prime
                 if(!CustomUST.ContainsKey("P-1:boss2")) return;
                 source.clip = CustomUST["P-1:boss2"];
             }
