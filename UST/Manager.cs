@@ -121,25 +121,25 @@ namespace USTManager
         public static bool IsDebug = false;
 
         // This is only used because its faster than a 20+ if chain
-        private static Dictionary<string, Func<AudioSource, AudioClip, MusicChanger, bool>> Handlers = new()
+        private static Dictionary<string, Func<AudioSource, AudioClip, bool>> Handlers = new()
         {
-            {"0-1",(source, clip, changer) => DefaultHandler("0-1", source, clip)},
-            {"0-2",(source, clip, changer) => DefaultHandler("0-2", source, clip)},
-            {"0-3",(source, clip, changer) => DefaultHandler("0-3", source, clip)},
-            {"0-4",(source, clip, changer) => DefaultHandler("0-4", source, clip)},
+            {"0-1",(source, clip) => DefaultHandler("0-1", source, clip)},
+            {"0-2",(source, clip) => DefaultHandler("0-2", source, clip)},
+            {"0-3",(source, clip) => DefaultHandler("0-3", source, clip)},
+            {"0-4",(source, clip) => DefaultHandler("0-4", source, clip)},
             {"0-5",Handle0_5},
-            {"1-3",(source, clip, changer) => DefaultHandler("1-3", source, clip)},
+            {"1-3",(source, clip) => DefaultHandler("1-3", source, clip)},
             {"1-4",Handle1_4},
-            {"2-1",(source, clip, changer) => DefaultHandler("2-1", source, clip)},
-            {"2-2",(source, clip, changer) => DefaultHandler("2-2", source, clip)},
-            {"2-3",(source, clip, changer) => DefaultHandler("2-3", source, clip)},
+            {"2-1",(source, clip) => DefaultHandler("2-1", source, clip)},
+            {"2-2",(source, clip) => DefaultHandler("2-2", source, clip)},
+            {"2-3",(source, clip) => DefaultHandler("2-3", source, clip)},
             {"2-4",Handle2_4},
             {"3-1",Handle3_1},
             {"3-2",Handle3_2},
-            {"4-1",(source, clip, changer) => DefaultHandler("4-1", source, clip)},
-            {"4-2",(source, clip, changer) => DefaultHandler("4-2", source, clip)},
+            {"4-1",(source, clip) => DefaultHandler("4-1", source, clip)},
+            {"4-2",(source, clip) => DefaultHandler("4-2", source, clip)},
             {"4-4",Handle4_4},
-            {"5-1",(source, clip, changer) => DefaultHandler("5-1", source, clip)},
+            {"5-1",(source, clip) => DefaultHandler("5-1", source, clip)},
             {"5-2",Handle5_2},
             {"5-3",Handle5_3},
             {"5-4",Handle5_4},
@@ -165,7 +165,7 @@ namespace USTManager
                 }
             }
             string actualLevel = level.Replace("Level ", "");
-            if(Handlers.ContainsKey(actualLevel)) return Handlers[actualLevel](source, clip, null);
+            if(Handlers.ContainsKey(actualLevel)) return Handlers[actualLevel](source, clip);
             return true;
         }
         public static bool DefaultHandler(string level, AudioSource source, AudioClip clip)
@@ -192,7 +192,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle0_5(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle0_5(AudioSource source, AudioClip clip)
         {
             if(source == null || source.clip == null) return true;
             if(source.clip.name == "Cerberus A")
@@ -207,7 +207,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle1_4(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle1_4(AudioSource source, AudioClip clip)
         {
             if(source != null && source.clip != null)
             {
@@ -224,7 +224,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle2_4(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle2_4(AudioSource source, AudioClip clip)
         {
             if(source != null && source.clip != null)
             {
@@ -243,7 +243,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle3_1(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle3_1(AudioSource source, AudioClip clip)
         {
             if(source == null || source.clip == null) return true;
             if(source.name == "CleanTheme" && !source.clip.name.Contains("[UST]"))
@@ -287,7 +287,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle3_2(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle3_2(AudioSource source, AudioClip clip)
         {
             if(source != null && source.clip != null)
             {
@@ -299,7 +299,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle4_4(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle4_4(AudioSource source, AudioClip clip)
         {
             if(source != null && source.clip != null)
             {
@@ -311,7 +311,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle5_2(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle5_2(AudioSource source, AudioClip clip)
         {
             if(source != null && source.clip != null)
             {
@@ -333,7 +333,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle5_3(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle5_3(AudioSource source, AudioClip clip)
         {
             if(source != null && source.clip != null)
             {
@@ -379,7 +379,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle5_4(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle5_4(AudioSource source, AudioClip clip)
         {
             if(source == null || source.clip == null) return true;
             if(source.name.Contains("Music 1"))
@@ -394,7 +394,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle6_1(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle6_1(AudioSource source, AudioClip clip)
         {
             if(source == null || source.clip == null) return true;
             if(source.name == "CleanTheme" && !source.clip.name.Contains("[UST]"))
@@ -430,7 +430,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle6_2(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle6_2(AudioSource source, AudioClip clip)
         {
             if(source == null || source.clip == null) return true;
             if(source.name.Contains("BossMusic"))
@@ -440,7 +440,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle7_1(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle7_1(AudioSource source, AudioClip clip)
         {
             if(source == null || source.clip == null) return true;
             if(source.name.Contains("CleanTheme"))
@@ -471,7 +471,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle7_2(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle7_2(AudioSource source, AudioClip clip)
         {
             if(source == null || source.clip == null) return true;
             if(source.name == "CleanTheme" && !source.clip.name.Contains("[UST]"))
@@ -515,7 +515,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle7_3(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle7_3(AudioSource source, AudioClip clip)
         {
             if(source == null || source.clip == null) return true;
             if(source.name == "CleanTheme" && !source.clip.name.Contains("[UST]"))
@@ -559,11 +559,11 @@ namespace USTManager
             }
             return true;
         }
-        public static bool Handle7_4(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool Handle7_4(AudioSource source, AudioClip clip)
         {
             return true;
         }
-        public static bool HandleP_1(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool HandleP_1(AudioSource source, AudioClip clip)
         {
             if(source != null && source.clip != null)
             {
@@ -580,7 +580,7 @@ namespace USTManager
             }
             return true;
         }
-        public static bool HandleP_2(AudioSource source, AudioClip clip, MusicChanger changer)
+        public static bool HandleP_2(AudioSource source, AudioClip clip)
         {
             return true;
         }
