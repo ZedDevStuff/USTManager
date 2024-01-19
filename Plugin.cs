@@ -20,7 +20,7 @@ using USTManager.Utility;
 
 namespace USTManager
 {
-    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.3.0")]
+    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.3.1")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir;

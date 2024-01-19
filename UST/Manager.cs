@@ -78,11 +78,13 @@ namespace USTManager
                     {
                         if(level.Key == "global")
                         {
+                            if(clips.ContainsKey(desc.Part)) continue;
                             clips.Add(desc.Part, d.First().Value);
                             Logging.Log($"Adding clip {d.First().Value.name}");
                         }
                         else
                         {
+                            if(clips.ContainsKey($"{level.Key}:{desc.Part}")) continue;
                             clips.Add($"{level.Key}:{desc.Part}", d.First().Value);
                             Logging.Log($"Adding clip {level.Key + ":" + desc.Part}");
                         }
@@ -93,11 +95,13 @@ namespace USTManager
                     {
                         if(level.Key == "global")
                         {
+                            if(clips.ContainsKey(desc.Part)) continue;
                             clips.Add(desc.Part, clip);
                             Logging.Log($"Adding clip {clip.name}");
                         }
                         else
                         {
+                            if(clips.ContainsKey($"{level.Key}:{desc.Part}")) continue;
                             clips.Add($"{level.Key}:{desc.Part}", clip);
                             Logging.Log($"Adding clip {level.Key + ":" + desc.Part}");
                         }
@@ -109,15 +113,6 @@ namespace USTManager
             {
                 CustomUST.Clear();
                 CustomUST = clips;
-            }
-        }
-        public static void DeleteUST(CustomUST ust)
-        {
-            if(ust == null) return;
-            string path = ust.Path;
-            if(Directory.Exists(path))
-            {
-                Directory.Delete(path, true);
             }
         }
         public static bool IsEnabled = true;
