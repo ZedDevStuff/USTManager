@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace USTManager
 {
-    public class Manager
+    public static class Manager
     {
         public static bool CurrentLevelHandled { get; private set; } = false;
         private static Dictionary<string, AudioClip> CustomUST = new();

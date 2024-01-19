@@ -7,7 +7,7 @@ using USTManager.Utility;
 
 namespace USTManager.Patches
 {
-    public class AudioSourcePatches
+    public static class AudioSourcePatches
     {
         // I don't remember why I made this. it does work but i don't really see much of a point anymore.
         // I'll keep it here for now just in case i ever need it.
