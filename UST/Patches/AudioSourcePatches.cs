@@ -7,7 +7,7 @@ using USTManager.Utility;
 
 namespace USTManager.Patches
 {
-    public class AudioSourcePatches
+    public static class AudioSourcePatches
     {
         // I don't remember why I made this. it does work but i don't really see much of a point anymore.
         // I'll keep it here for now just in case i ever need it.
@@ -26,74 +26,50 @@ namespace USTManager.Patches
             }
         }*/
 
-        [HarmonyPatch(typeof(AudioSource), "Play", [typeof(double)]), HarmonyPrefix]
-        public static bool Play(AudioSource __instance, double delay)
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AudioSource), "Play", [typeof(double)])]
+        [HarmonyPatch(typeof(AudioSource), "Play", [])]
+        public static void Play(AudioSource __instance)
         {
-            if (!Manager.IsEnabled) return true;
-            if(Manager.IsDebug)
-            {
-                Logging.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
-                if(__instance.clip != null)
-                {
-                    if(__instance.name.Contains("Theme") || __instance.name.Contains("Music"))
-                    {
-                        // TODO: Add text to screen instead of world
-                    }
-                    else
-                    {
-                        GameObject obj = GameObject.Instantiate(Plugin.DebugTextPrefab, __instance.transform.position, Quaternion.identity);
-                        obj.transform.localScale /= 2;
-                        obj.GetComponent<TMP_Text>().text = __instance.clip.name;
-                        var constraint = obj.GetComponent<RotationConstraint>();
-                        constraint.AddSource(new ConstraintSource(){sourceTransform = CameraController.Instance.transform, weight = 1});
-                        constraint.constraintActive = true;
-                        Plugin.RunCoroutine(DestroyAfter(obj, 2f));
-                    } 
-                    
-                }
-            }
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null, null);
-        }
-        [HarmonyPatch(typeof(AudioSource), "Play", []), HarmonyPrefix]
-        public static bool Play(AudioSource __instance)
-        {
-            if (!Manager.IsEnabled) return true;
-            if(Manager.IsDebug)
-            {
-                Logging.Log($"Playing {__instance.clip.name} in {SceneHelper.CurrentScene}");
-                if(__instance.clip != null)
-                {
-                    if(__instance.name.Contains("Theme") || __instance.name.Contains("Music"))
-                    {
-                        // TODO: Add text to screen instead of world
-                    }
-                    else
-                    {
-                        GameObject obj = GameObject.Instantiate(Plugin.DebugTextPrefab, __instance.transform.position, Quaternion.identity);
-                        obj.transform.localScale /= 2;
-                        obj.GetComponent<TMP_Text>().text = __instance.clip.name;
-                        var constraint = obj.GetComponent<RotationConstraint>();
-                        constraint.AddSource(new ConstraintSource(){sourceTransform = CameraController.Instance.transform, weight = 1});
-                        constraint.constraintActive = true;
-                        Plugin.RunCoroutine(DestroyAfter(obj, 2f));
-                    } 
-                    
-                }
-            }
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, null, null);
+            if(Manager.IsDebug) ShowDebugText(__instance);
+
+            Manager.HandleAudioSource(SceneHelper.CurrentScene, __instance);
         }
 
-        [HarmonyPatch(typeof(AudioSource), "clip", MethodType.Setter), HarmonyPrefix]
-        public static bool set_clip(AudioSource __instance, AudioClip value)
+        private static void ShowDebugText(AudioSource source)
         {
-            if(!Manager.IsEnabled) return true;
-            return Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value, null);
+            Logging.Log($"Playing {source.clip.name} in {SceneHelper.CurrentScene}");
+            if(source.clip == null) return;
+
+            if(source.name.Contains("Theme") || source.name.Contains("Music"))
+            {
+                // TODO: Add text to screen instead of world
+            }
+            else
+            {
+                GameObject obj = GameObject.Instantiate(Plugin.DebugTextPrefab, source.transform.position, Quaternion.identity);
+                obj.transform.localScale /= 2;
+                obj.GetComponent<TMP_Text>().text = source.clip.name;
+                var constraint = obj.GetComponent<RotationConstraint>();
+                constraint.AddSource(new ConstraintSource() { sourceTransform = CameraController.Instance.transform, weight = 1 });
+                constraint.constraintActive = true;
+                Plugin.RunCoroutine(DestroyAfter(obj, 2f));
+            }
+        }
+
+        /*
+        [HarmonyPatch(typeof(AudioSource), "clip", MethodType.Setter), HarmonyPrefix]
+        public static void set_clip(AudioSource __instance, AudioClip value)
+        {
+            if(!Manager.IsEnabled) return;
+            Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value);
             //Logging.Log(__instance.name + ": set_clip: " + value??"null");
         }
+        */
+
         [HarmonyPatch(typeof(GameObject), "SetActive"), HarmonyPrefix]
-        public static bool SetActive(GameObject __instance, bool value)
+        public static void SetActive(GameObject __instance, bool value)
         {
-            if(!Manager.IsEnabled) return true;
             if(SceneHelper.CurrentScene == "Level 5-4" && __instance.name == "Music")
             {
                 foreach(Transform child in __instance.transform)
@@ -104,37 +80,32 @@ namespace USTManager.Patches
             }
             else if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
             {
-                return Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
+                Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
             }
-            return true;
         }
         [HarmonyPatch(typeof(Crossfade), "Awake"), HarmonyPrefix]
         public static void Awake(Crossfade __instance)
         {
-            if(!Manager.IsEnabled) return;
             if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
             {
                 if(Manager.IsDebug) Logging.Log($"Crossfade: {source.clip.name} in {SceneHelper.CurrentScene}");
-                Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
+                Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
                 if(source.playOnAwake) source.Play();
             }
         }
         [HarmonyPatch(typeof(MusicChanger), "Change"), HarmonyPrefix]
         public static bool Change(MusicChanger __instance)
         {
-            if(!Manager.IsEnabled) return true;
-            //return Manager.HandleMusicChanger(SceneHelper.CurrentScene, __instance);
-            return Manager.HandleAudio(SceneHelper.CurrentScene, null, null, __instance);
+            return Manager.HandleMusicChanger(SceneHelper.CurrentScene, __instance);
         }
         public static void HandleInstantiate(GameObject obj)
         {
             Logging.Log($"Instantiating {obj.name} in {SceneHelper.CurrentScene}");
-            if(!Manager.IsEnabled) return;
             AudioSource source = obj.GetComponentInChildren<AudioSource>();
             if(source != null)
             {
                 Logging.Log($"Instantiating {source.clip.name} in {SceneHelper.CurrentScene}");
-                Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
+                Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
             }
         }
 
