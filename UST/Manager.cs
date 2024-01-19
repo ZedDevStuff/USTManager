@@ -153,6 +153,8 @@ namespace USTManager
                     "Cerberus B" => "0-5:boss2",
                     _ => null
                 },
+                "1-1" => HeartOfTheSunrise(source.clip.name),
+                "1-2" => TheBurningWorld(source.clip.name, source.name == "CleanTheme"),
                 "1-4" => source.clip.name switch
                 {
                     "V2 Intro" => "1-4:intro",
@@ -180,6 +182,7 @@ namespace USTManager
                     "Music 3" => "3-2:boss", // Gabriel 3-2
                     _ => null,
                 },
+                "4-3" => AShotInTheDark(source.clip.name),
                 "4-4" => source.clip.name switch
                 {
                     "V2 4-4" => "4-4:boss",
@@ -293,165 +296,79 @@ namespace USTManager
 
         public static bool HandleAudio(string level, MusicChanger changer)
         {
-            string actualLevel = level.Replace("Level ", "");
-            return actualLevel switch
+            string cleanName = changer.clean?.name ?? "NULL";
+            string battleName = changer.battle?.name ?? "NULL";
+            string bossName = changer.boss?.name ?? "NULL";
+            if(cleanName.Contains("[UST]") || battleName.Contains("[UST]") || bossName.Contains("[UST]"))
             {
-                "1-1" => Handle1_1(changer),
-                "1-2" => Handle1_2(changer),
-                "4-3" => Handle4_3(changer),
-                _ => true,
+                return false;
+            }
+
+            level = level.Replace("Level ", "");
+            HandleChangerClip(level, "clean", ref changer.clean);
+            HandleChangerClip(level, "battle", ref changer.battle);
+            HandleChangerClip(level, "boss", ref changer.boss);
+
+            return true;
+        }
+
+        private static void HandleChangerClip(string level, string flavor, ref AudioClip clip)
+        {
+            if(clip == null) return;
+
+            string key = level switch
+            {
+                "1-1" => HeartOfTheSunrise(clip.name),
+                "1-2" => TheBurningWorld(clip.name, flavor == "clean"),
+                "4-3" => AShotInTheDark(clip.name),
+                _ => null,
             };
+
+            if(key != null && CustomUST.ContainsKey(key))
+            {
+                clip = CustomUST[key];
+            }
+            else if(level == "1-1" && flavor == "clean" && CustomUST.ContainsKey("1-1:clean"))
+            {
+                // "A Thousand Greetings" and "A Shattered Illusion (clean)" used to both be 1-1:clean
+                clip = CustomUST["1-1:clean"];
+            }
         }
 
-        public static bool Handle1_1(MusicChanger changer)
-        {
-            if(changer != null)
-            {
-                if((changer.battle != null && changer.battle.name.Contains("[UST]")) || (changer.clean != null && changer.clean.name.Contains("[UST]")) || (changer.boss != null && changer.boss.name.Contains("[UST]"))) return false;
-                if(CustomUST.ContainsKey("1-1:clean"))
-                {
-                    changer.clean = CustomUST["1-1:clean"];
-                }
-                if(CustomUST.ContainsKey("1-1:battle"))
-                {
-                    changer.battle = CustomUST["1-1:battle"];
-                }
-                return true;
-            }
-            return true;
-        }
+        // These functions are used by both the AudioSource patch and the MusicChanger patch.
+        // For these levels, the AudioSource logic handles the music at the start of the level,
+        // while the MusicChangerPatch is needed to correctly override music mid-level.
+        //
+        // Ideally, each level would be handled by exactly one of the two patches,
+        // but top minds have thus far been unable to solve this problem.
 
-        public static bool Handle1_2(MusicChanger changer)
+        private static string HeartOfTheSunrise(string clipName) => clipName switch
         {
-            if(changer != null)
-            {
-                if((changer.battle != null && changer.battle.name.Contains("[UST]")) || (changer.clean != null && changer.clean.name.Contains("[UST]")) || (changer.boss != null && changer.boss.name.Contains("[UST]"))) return false;
-                if(changer.clean != null && changer.clean.name.Contains("Dark"))
-                {
-                    if(CustomUST.ContainsKey("1-2:clean1"))
-                    {
-                        changer.clean = CustomUST["1-2:clean1"];
-                    }
-                }
-                if(changer.battle != null && changer.battle.name.Contains("Dark"))
-                {
-                    if(CustomUST.ContainsKey("1-2:battle1"))
-                    {
-                        changer.battle = CustomUST["1-2:battle1"];
-                    }
-                }
-                if(changer.clean != null && changer.clean.name.Contains("Noise"))
-                {
-                    if(CustomUST.ContainsKey("1-2:clean2"))
-                    {
-                        changer.clean = CustomUST["1-2:clean2"];
-                    }
-                }
-                if(changer.battle != null && changer.battle.name.Contains("Noise"))
-                {
-                    if(CustomUST.ContainsKey("1-2:battle2"))
-                    {
-                        changer.battle = CustomUST["1-2:battle2"];
-                    }
-                }
-                return true;
-            }
-            return true;
-        }
+            "A Thousand Greetings" => "1-1:clean1",
+            "1-1 Clean" => "1-1:clean2",
+            "1-1" => "1-1:battle",
+            _ => null,
+        };
 
-        public static bool Handle4_3(MusicChanger changer)
+        private static string TheBurningWorld(string clipName, bool clean) => clipName switch
         {
-            if(changer != null)
-            {
-                if((changer.battle != null && changer.battle.name.Contains("[UST]")) || (changer.clean != null && changer.clean.name.Contains("[UST]")) || (changer.boss != null && changer.boss.name.Contains("[UST]"))) return false;
-                if(changer.clean != null && changer.clean.name.Contains("Phase 1"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:clean1")) return true;
-                    changer.clean = CustomUST["4-3:clean1"];
-                }
-                if(changer.battle != null && changer.battle.name.Contains("Phase 1"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:battle1")) return true;
-                    changer.battle = CustomUST["4-3:battle1"];
-                }
-                if(changer.clean != null && changer.clean.name.Contains("Phase 2"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:clean2")) return true;
-                    changer.clean = CustomUST["4-3:clean2"];
-                }
-                if(changer.battle != null && changer.battle.name.Contains("Phase 2"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:battle2")) return true;
-                    changer.battle = CustomUST["4-3:battle2"];
-                }
-                if(changer.clean != null && changer.clean.name.Contains("Phase 3"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:clean3")) return true;
-                    changer.clean = CustomUST["4-3:clean3"];
-                }
-                if(changer.battle != null && changer.battle.name.Contains("Phase 3"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:battle3")) return true;
-                    changer.battle = CustomUST["4-3:battle3"];
-                }
-                return true;
-            }
-            /*if(source == null || source.clip == null) return true;
-            if(source.name == "CleanTheme" && !source.clip.name.Contains("[UST]"))
-            {
-                if(source.clip.name.Contains("Phase 1"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:clean1")) return true;
-                    else source.clip = CustomUST["4-3:clean1"];
-                }
-                else if(source.clip.name.Contains("Phase 2"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:clean2")) return true;
-                    else source.clip = CustomUST["4-3:clean2"];
-                }
-                else if(source.clip.name.Contains("Phase 3"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:clean3")) return true;
-                    else source.clip = CustomUST["4-3:clean3"];
-                }
-            }
-            else if(source.name == "BattleTheme" && !source.clip.name.Contains("[UST]"))
-            {
-                if(source.clip.name.Contains("Phase 1"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:battle1")) return true;
-                    else source.clip = CustomUST["4-3:battle1"];
-                }
-                else if(source.clip.name.Contains("Phase 2"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:battle2")) return true;
-                    else source.clip = CustomUST["4-3:battle2"];
-                }
-                else if(source.clip.name.Contains("Phase 3"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:battle3")) return true;
-                    else source.clip = CustomUST["4-3:battle3"];
-                }
-            }
-            else if(source.name == "BossTheme" && !source.clip.name.Contains("[UST]"))
-            {
-                if(source.clip.name.Contains("Phase 1"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:battle1")) return true;
-                    else source.clip = CustomUST["4-3:battle1"];
-                }
-                else if(source.clip.name.Contains("Phase 2"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:battle2")) return true;
-                    else source.clip = CustomUST["4-3:battle2"];
-                }
-                else if(source.clip.name.Contains("Phase 3"))
-                {
-                    if(!CustomUST.ContainsKey("4-3:battle3")) return true;
-                    else source.clip = CustomUST["4-3:battle3"];
-                }
-            }*/
-            return true;
-        }
+            "A Thousand Greetings" => clean ? "1-2:clean0" : "1-2:battle0",
+            "1-2 Dark Clean" => "1-2:clean1",
+            "1-2 Noise Clean" => "1-2:clean2",
+            "1-2 Dark Battle" => "1-2:battle1",
+            "1-2 Noise Battle" => "1-2:battle2",
+            _ => null,
+        };
+
+        private static string AShotInTheDark(string clipName) => clipName switch
+        {
+            "4-3 Phase 1 Clean" => "4-3:clean1",
+            "4-3 Phase 2 Clean" => "4-3:clean2",
+            "4-3 Phase 3 Clean" => "4-3:clean3", // doesn't actually exist: when you clear the final arena, the game plays 4-3 Phase 1 Clean
+            "4-3 Phase 1" => "4-3:battle1",
+            "4-3 Phase 2" => "4-3:battle2",
+            "4-3 Phase 3" => "4-3:battle3",
+            _ => null,
+        };
     }
 }
