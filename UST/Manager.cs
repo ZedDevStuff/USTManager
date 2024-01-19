@@ -128,14 +128,14 @@ namespace USTManager
         public static bool IsEnabled = true;
         public static bool IsDebug = false;
 
-        public static void HandleAudio(string level, AudioSource source, AudioClip clip)
+        public static void HandleAudioSource(string level, AudioSource source)
         {
-            // clip can be null, but not source or source.clip
+            if(!IsEnabled) return;
+
             if(source?.clip == null) return;
 
             // don't do anything if the track is already patched
             if(source.clip.name.Contains("[UST]")) return;
-            if(clip != null && clip.name.Contains("[UST]")) return;
 
             // before trying to use any "handlers", check for an exact match
             if(CustomUST.ContainsKey(source.clip.name))
@@ -294,8 +294,10 @@ namespace USTManager
             }
         }
 
-        public static bool HandleAudio(string level, MusicChanger changer)
+        public static bool HandleMusicChanger(string level, MusicChanger changer)
         {
+            if(!IsEnabled) return true;
+
             string cleanName = changer.clean?.name ?? "NULL";
             string battleName = changer.battle?.name ?? "NULL";
             string bossName = changer.boss?.name ?? "NULL";
