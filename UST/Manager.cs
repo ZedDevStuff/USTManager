@@ -1,12 +1,7 @@
-﻿using Logic;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using UnityEngine;
-using UnityEngine.Audio;
 using USTManager.Data;
 using USTManager.Utility;
 using Newtonsoft.Json;
