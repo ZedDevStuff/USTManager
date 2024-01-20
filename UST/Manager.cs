@@ -139,94 +139,94 @@ namespace USTManager
             {
                 "0-5" => source.clip.name switch
                 {
-                    "Cerberus A" => "0-5:boss1",
-                    "Cerberus B" => "0-5:boss2",
+                    "Cerberus A" => "boss1",
+                    "Cerberus B" => "boss2",
                     _ => null
                 },
                 "1-1" => HeartOfTheSunrise(source.clip.name),
                 "1-2" => TheBurningWorld(source.clip.name, source.name == "CleanTheme"),
                 "1-4" => source.clip.name switch
                 {
-                    "V2 Intro" => "1-4:intro",
-                    "V2 1-4" => "1-4:boss",
+                    "V2 Intro" => "intro",
+                    "V2 1-4" => "boss",
                     _ => null
                 },
                 "2-4" => source.clip.name switch
                 {
-                    "Minos Corpse A" => "2-4:boss1",
-                    "Minos Corpse B" => "2-4:boss2",
+                    "Minos Corpse A" => "boss1",
+                    "Minos Corpse B" => "boss2",
                     _ => null
                 },
                 "3-1" => source.clip.name switch
                 {
-                    "3-1 Guts Clean" => "3-1:clean1",
-                    "3-1 Glory Clean" => "3-1:clean2",
-                    "3-1 Guts" => "3-1:battle1",
-                    "3-1 Glory" => "3-1:battle2",
+                    "3-1 Guts Clean" => "clean1",
+                    "3-1 Glory Clean" => "clean2",
+                    "3-1 Guts" => "battle1",
+                    "3-1 Glory" => "battle2",
                     _ => null,
                 },
                 "3-2" => source.name switch
                 {
-                    "Music 1" => "3-2:intro1", // Flesh Ambiance
-                    "Music 2" => "3-2:intro2", // Gabriel 3-2 Intro
-                    "Music 3" => "3-2:boss", // Gabriel 3-2
+                    "Music 1" => "intro1", // Flesh Ambiance
+                    "Music 2" => "intro2", // Gabriel 3-2 Intro
+                    "Music 3" => "boss", // Gabriel 3-2
                     _ => null,
                 },
                 "4-3" => AShotInTheDark(source.clip.name),
                 "4-4" => source.clip.name switch
                 {
-                    "V2 4-4" => "4-4:boss",
+                    "V2 4-4" => "boss",
                     _ => null,
                 },
                 "5-2" => source.clip.name switch
                 {
-                    "Ferryman A" => "5-2:boss1",
-                    "Ferryman B" => "5-2:boss2",
-                    "Ferryman C" => "5-2:boss3",
+                    "Ferryman A" => "boss1",
+                    "Ferryman B" => "boss2",
+                    "Ferryman C" => "boss3",
                     _ => null
                 },
                 "5-3" => source.name switch
                 {
                     // 5-3 Clean, 5-3 Aftermath Intro, 5-3 Aftermath Clean
-                    "CleanTheme" => source.clip.name.Contains("Aftermath") ? "5-3:clean2" : "5-3:clean1",
+                    "CleanTheme" => source.clip.name.Contains("Aftermath") ? "clean2" : "clean1",
                     // 5-3, 5-3 Aftermath Intro, 5-3 Aftermath
-                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Aftermath") ? "5-3:battle2" : "5-3:battle1",
+                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Aftermath") ? "battle2" : "battle1",
                     _ => null,
                 },
                 "5-4" => source.name switch
                 {
-                    "Music 1" => "5-4:boss1", // Leviathan A
-                    "Music 2" => "5-4:boss2", // Leviathan B
+                    "Music 1" => "boss1", // Leviathan A
+                    "Music 2" => "boss2", // Leviathan B
                     _ => null
                 },
                 "6-1" => source.name switch
                 {
                     // CleanTheme / 6-1 Clean
                     // CleanTheme / Deep Drone 1
-                    "CleanTheme" => source.clip.name.Contains("6-1") ? "6-1:clean" : null,
+                    "CleanTheme" => source.clip.name.Contains("6-1") ? "clean" : null,
 
                     // BattleTheme / 6-1
                     // BattleTheme / Deep Drone 3B
                     // BossTheme / 6-1
                     // BossTheme / Deep Drone 3
-                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("6-1") ? "6-1:battle" : null,
+                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("6-1") ? "battle" : null,
 
                     // ClimaxMusic / 6-1 Hall of Sacreligious Remains
-                    "ClimaxMusic" => "6-1:boss",
+                    "ClimaxMusic" => "boss",
 
                     _ => null,
                 },
                 "6-2" => source.name switch
                 {
-                    "BossMusic" => "6-2:boss", // Gabriel 6-2
+                    "BossMusic" => "boss", // Gabriel 6-2
                     _ => null
                 },
                 "7-1" => source.name switch
                 {
-                    "CleanTheme" => "7-1:clean", // 7-1 Clean
-                    "BattleTheme" => "7-1:battle", // 7-1
-                    "MinotaurPhase1Music" => "7-1:boss1", // Minotaur A
-                    "MinotaurPhase2Music" => "7-2:boss2", // Minotaur B
+                    "CleanTheme" => "clean", // 7-1 Clean
+                    "BattleTheme" => "battle", // 7-1
+                    "MinotaurPhase1Music" => "boss1", // Minotaur A
+                    "MinotaurPhase2Music" => "boss2", // Minotaur B
                     // Wind / Windloop
                     // IntroMusic / 7-1 Intro
                     // MinotaurIntroMusic / MinotaurIntro
@@ -235,17 +235,17 @@ namespace USTManager
                 "7-2" => source.name switch
                 {
                     // 7-2 Intro Clean, 7-2 Clean
-                    "CleanTheme" => source.clip.name.Contains("Intro") ? "7-2:clean1" : "7-2:clean2",
+                    "CleanTheme" => source.clip.name.Contains("Intro") ? "clean1" : "clean2",
                     // 7-2 Intro Battle, 7-2
-                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Intro") ? "7-2:battle1" : "7-2:battle2",
+                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Intro") ? "battle1" : "battle2",
                     _ => null,
                 },
                 "7-3" => source.name switch
                 {
                     // 7-3 Intro Clean, 7-3 Clean
-                    "CleanTheme" => source.clip.name.Contains("Intro") ? "7-3:clean1" : "7-3:clean2",
+                    "CleanTheme" => source.clip.name.Contains("Intro") ? "clean1" : "clean2",
                     // 7-3 Intro Clean, 7-3
-                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Intro") ? "7-3:battle1" : "7-3:battle2",
+                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Intro") ? "battle1" : "battle2",
                     // Wind / WindLoopHaunted
                     // Drone3 / MollyCorrupted4
                     _ => null,
@@ -254,11 +254,11 @@ namespace USTManager
                 "P-1" => source.clip.name switch
                 {
                     // Chaos / Flesh Prison
-                    "Flesh Prison" => "P-1:boss1",
+                    "Flesh Prison" => "boss1",
 
                     // IntroMusic / Minos Prime Intro
                     // Music 3 / Minos Prime
-                    "Minos Prime Intro" or "Minos Prime" => "P-1:boss2",
+                    "Minos Prime Intro" or "Minos Prime" => "boss2",
 
                     // Sourire / Sourire d'avril
                     _ => null,
@@ -267,12 +267,13 @@ namespace USTManager
 
                 _ => source.name switch
                 {
-                    "CleanTheme" => level + ":clean",
-                    "BossTheme" when CustomUST.ContainsKey(level + ":boss") => level + ":boss",
-                    "BattleTheme" or "BossTheme" => level + ":battle",
+                    "CleanTheme" => "clean",
+                    "BossTheme" when CustomUST.ContainsKey(level + ":boss") => "boss",
+                    "BattleTheme" or "BossTheme" => "battle",
                     _ => null,
                 },
             };
+            if(key != null) key = $"{level}:{key}";
 
             if(key != null && CustomUST.ContainsKey(key))
             {
@@ -315,6 +316,7 @@ namespace USTManager
                 "4-3" => AShotInTheDark(clip.name),
                 _ => null,
             };
+            if(key != null) key = $"{level}:{key}";
 
             if(key != null && CustomUST.ContainsKey(key))
             {
@@ -336,30 +338,30 @@ namespace USTManager
 
         private static string HeartOfTheSunrise(string clipName) => clipName switch
         {
-            "A Thousand Greetings" => "1-1:clean1",
-            "1-1 Clean" => "1-1:clean2",
-            "1-1" => "1-1:battle",
+            "A Thousand Greetings" => "clean1",
+            "1-1 Clean" => "clean2",
+            "1-1" => "battle",
             _ => null,
         };
 
         private static string TheBurningWorld(string clipName, bool clean) => clipName switch
         {
-            "A Thousand Greetings" => clean ? "1-2:clean0" : "1-2:battle0",
-            "1-2 Dark Clean" => "1-2:clean1",
-            "1-2 Noise Clean" => "1-2:clean2",
-            "1-2 Dark Battle" => "1-2:battle1",
-            "1-2 Noise Battle" => "1-2:battle2",
+            "A Thousand Greetings" => clean ? "clean0" : "battle0",
+            "1-2 Dark Clean" => "clean1",
+            "1-2 Noise Clean" => "clean2",
+            "1-2 Dark Battle" => "battle1",
+            "1-2 Noise Battle" => "battle2",
             _ => null,
         };
 
         private static string AShotInTheDark(string clipName) => clipName switch
         {
-            "4-3 Phase 1 Clean" => "4-3:clean1",
-            "4-3 Phase 2 Clean" => "4-3:clean2",
-            "4-3 Phase 3 Clean" => "4-3:clean3", // doesn't actually exist: when you clear the final arena, the game plays 4-3 Phase 1 Clean
-            "4-3 Phase 1" => "4-3:battle1",
-            "4-3 Phase 2" => "4-3:battle2",
-            "4-3 Phase 3" => "4-3:battle3",
+            "4-3 Phase 1 Clean" => "clean1",
+            "4-3 Phase 2 Clean" => "clean2",
+            "4-3 Phase 3 Clean" => "clean3", // doesn't actually exist: when you clear the final arena, the game plays 4-3 Phase 1 Clean
+            "4-3 Phase 1" => "battle1",
+            "4-3 Phase 2" => "battle2",
+            "4-3 Phase 3" => "battle3",
             _ => null,
         };
     }
