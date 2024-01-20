@@ -10,6 +10,7 @@ using TMPro;
 using UnityEngine.UI;
 using USTManager.Misc;
 using USTManager.Utility;
+using System.Linq;
 
 namespace USTManager
 {
@@ -17,7 +18,7 @@ namespace USTManager
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir;
-        public static GameObject DebugTextPrefab, MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab, ConflictEntryPrefab, ConflictResolutionScreenPrefab, ToastPrefab;
+        public static GameObject MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab, ConflictEntryPrefab, ConflictResolutionScreenPrefab, ToastPrefab;
         private void Awake()
         {
             instance = this;
@@ -32,7 +33,6 @@ namespace USTManager
 
 
             AssetBundle bundle = AssetBundle.LoadFromMemory(Resources.Resource1.ust);
-            DebugTextPrefab = bundle.LoadAsset<GameObject>("DebugText");
             MenuEntryPrefab = bundle.LoadAsset<GameObject>("MenuEntry");
             MenuEntryPrefab.AddComponent<HudOpenEffect>();
             SelectionScreenEntryPrefab = bundle.LoadAsset<GameObject>("USTEntry");
@@ -76,6 +76,47 @@ namespace USTManager
             Directory.CreateDirectory(Path.Combine(UKPath, "USTs", "Template"));
             File.WriteAllText(Path.Combine(UKPath, "USTs", "Template", "template.ust"), CustomUST.GetTemplateJson());
             File.WriteAllText(Path.Combine(UKPath, "USTs", "Template", "readme.md"), StaticResources.Readme);
+        }
+
+        private void OnGUI()
+        {
+            if(!Manager.IsDebug) return;
+
+            AudioSource[] sources = FindObjectsOfType<AudioSource>()
+                .Where(s => s.isPlaying)
+                .Where(s => s.spatialBlend < 1.0)
+                //.OrderByDescending(s => s.clip.length)
+                .ToArray();
+
+            void DrawColumn(System.Action<AudioSource> action)
+            {
+                using var _ = new GUILayout.VerticalScope();
+                foreach(AudioSource s in sources)
+                {
+                    action(s);
+                }
+            }
+
+            GUIStyle style = GUI.skin.label;
+            style.fontSize = 24;
+
+            using var _ = new GUILayout.HorizontalScope();
+
+            style.normal.textColor = Color.green;
+            DrawColumn(s => GUILayout.Label(s.name));
+
+            GUILayout.Space(20);
+            style.normal.textColor = Color.white;
+            DrawColumn(s => GUILayout.Label(s.clip.name));
+
+            GUILayout.Space(20);
+            style.normal.textColor = Color.red;
+            DrawColumn(s =>
+            {
+                using var _ = new GUILayout.HorizontalScope();
+                GUILayout.Label(s.volume * 100 + "%");
+                GUILayout.HorizontalSlider(s.time, 0, s.clip.length, GUILayout.Width(150));
+            });
         }
     }
 }
