@@ -1,15 +1,8 @@
 ﻿using BepInEx;
-using UnityEngine.SceneManagement;
-using Steamworks;
-using System.Diagnostics;
-using System.Reflection;
 using System.IO;
 using UnityEngine;
 using HarmonyLib;
-using ULTRAKILL;
 using GameConsole;
-using System.Linq;
-using Newtonsoft.Json;
 using USTManager.Data;
 using USTManager.Patches;
 using USTManager.Commands;
@@ -31,13 +24,13 @@ namespace USTManager
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             Harmony.CreateAndPatchAll(typeof(AudioSourcePatches));
             Harmony.CreateAndPatchAll(typeof(MainMenuPatches));
-            
+
             UKPath = new DirectoryInfo(Application.dataPath).Parent.FullName;
-            DirectoryInfo ustDir = new(Path.Combine(UKPath,"USTs"));
+            DirectoryInfo ustDir = new(Path.Combine(UKPath, "USTs"));
             USTDir = ustDir.FullName;
             if(!ustDir.Exists) ustDir.Create();
-            
-            
+
+
             AssetBundle bundle = AssetBundle.LoadFromMemory(Resources.Resource1.ust);
             DebugTextPrefab = bundle.LoadAsset<GameObject>("DebugText");
             MenuEntryPrefab = bundle.LoadAsset<GameObject>("MenuEntry");
@@ -58,7 +51,7 @@ namespace USTManager
             Console.Instance.RegisterCommand(new USTToggle());
             Console.Instance.RegisterCommand(new USTDebug());
             CreateTemplate();
-            
+
         }
         public static USTSelectionScreen Screen;
         public static void OpenMenu(Transform transform)
@@ -80,10 +73,9 @@ namespace USTManager
         }
         public void CreateTemplate()
         {
-            Directory.CreateDirectory(Path.Combine(UKPath,"USTs","Template"));
-            File.WriteAllText(Path.Combine(UKPath,"USTs","Template","template.ust"), CustomUST.GetTemplateJson());
-            File.WriteAllText(Path.Combine(UKPath,"USTs","Template","readme.md"),StaticResources.Readme);
+            Directory.CreateDirectory(Path.Combine(UKPath, "USTs", "Template"));
+            File.WriteAllText(Path.Combine(UKPath, "USTs", "Template", "template.ust"), CustomUST.GetTemplateJson());
+            File.WriteAllText(Path.Combine(UKPath, "USTs", "Template", "readme.md"), StaticResources.Readme);
         }
-        
     }
 }
