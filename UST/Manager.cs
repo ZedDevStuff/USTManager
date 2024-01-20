@@ -250,7 +250,25 @@ namespace USTManager
                     // Drone3 / MollyCorrupted4
                     _ => null,
                 },
-                "7-4" => null, // not currently supported
+                "7-4" => source.clip.name switch
+                {
+                    "Centaur A-1" => "outside1", // Ground
+                    "Centaur A-2" => "outside2", // Air
+                    "Centaur A-3" => "outside3", // Front
+                    "Centaur A-4" => "outside4", // House
+                    "Centaur A-5" => "outside5", // SecurityBoss
+                    "Centaur A-6" => "outside6", // Interlude
+
+                    "Centaur B-1" => "inside1", // Alarm
+                    "Centaur B-2" => "inside2", // BrainPath
+                    "Centaur B-3" => "inside3", // BrainFight
+
+                    "Centaur B-4" => "escape1", // Escape
+                    "Centaur B-5" => "escape2", // EscapeFight
+                    "Centaur B-6" => "escape3", // End
+
+                    _ => null,
+                },
                 "P-1" => source.clip.name switch
                 {
                     // Chaos / Flesh Prison
