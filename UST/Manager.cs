@@ -269,16 +269,15 @@ namespace USTManager
 
                     _ => null,
                 },
-                "P-1" => source.clip.name switch
+                "P-1" => source.name switch
                 {
-                    // Chaos / Flesh Prison
-                    "Flesh Prison" => "boss1",
-
-                    // IntroMusic / Minos Prime Intro
-                    // Music 3 / Minos Prime
-                    "Minos Prime Intro" or "Minos Prime" => "boss2",
-
-                    // Sourire / Sourire d'avril
+                    "Sourire" => "intro1",    // Sourire d'avril
+                    "Sourire 2" => "intro2",  // Sourire d'avril corrupted 2
+                    "Sourire 3" => "intro3",  // Sourire d'avril corrupted 5
+                    "Sourire 4" => "intro4",  // Sourire d'avril corrupted 6
+                    "Chaos" => "boss1",       // Flesh Prison
+                    "IntroMusic" => "speech", // Minos Prime Intro
+                    "Music 3" => "boss2",     // Minos Prime
                     _ => null,
                 },
                 "P-2" => null, // not currently supported
