@@ -28,21 +28,14 @@ namespace USTManager.Utility
                         {
                             if(others.Levels.ContainsKey(level.Key))
                             {
-                                if(!conflicts.ContainsKey(level.Key))
-                                {
-                                    conflicts.Add(level.Key, [ust]);
-                                }
-                                else
-                                {
-                                    conflicts[level.Key].Add(ust);
-                                }
+                                conflicts.GetOrAdd(level.Key, []).Add(ust);
                             }
                             else
                             {
-                                List<CustomUST.Descriptor> parts = new();
-                                foreach(CustomUST.Descriptor part in level.Value)
+                                Dictionary<string, string> parts = [];
+                                foreach(var part in level.Value)
                                 {
-                                    parts.Add(new(part.Part, Path.Combine(ust.Path, part.Path)));
+                                    parts.Add(part.Key, Path.Combine(ust.Path, part.Value));
                                 }
                                 merged.Levels.Add(level.Key, parts);
                             }
@@ -53,29 +46,16 @@ namespace USTManager.Utility
                         foreach(CustomUST other in USTs.Where(x => x != ust))
                         {
                             if(!other.Levels.ContainsKey("global")) continue;
-                            else
+
+                            foreach(var entry in level.Value)
                             {
-                                foreach(var entry in level.Value)
+                                if(other.Levels["global"].ContainsKey(entry.Key))
                                 {
-                                    if(other.Levels["global"].Where(x => x.Part == entry.Part).Count() > 0)
-                                    {
-                                        if(!conflicts.ContainsKey($"global:{entry.Part}"))
-                                        {
-                                            conflicts.Add($"global:{entry.Part}", [ust]);
-                                        }
-                                        else
-                                        {
-                                            conflicts[$"global:{entry.Part}"].Add(ust);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if(!merged.Levels.ContainsKey("global"))
-                                        {
-                                            merged.Levels.Add("global", [new(entry.Part, Path.Combine(ust.Path, entry.Path))]);
-                                        }
-                                        else merged.Levels["global"].Add(new(entry.Part, Path.Combine(ust.Path, entry.Path)));
-                                    }
+                                    conflicts.GetOrAdd($"global:{entry.Key}", []).Add(ust);
+                                }
+                                else
+                                {
+                                    merged.Levels.GetOrAdd("global", []).Add(entry.Key, Path.Combine(ust.Path, entry.Value));
                                 }
                             }
                         }
@@ -124,7 +104,10 @@ namespace USTManager.Utility
                     {
                         if(original.Levels.ContainsKey("global"))
                         {
-                            original.Levels["global"].AddRange(entry.Value.Levels["global"]);
+                            foreach(var kv in entry.Value.Levels["global"])
+                            {
+                                original.Levels["global"].Add(kv.Key, kv.Value);
+                            }
                         }
                         else original.Levels.Add("global", entry.Value.Levels["global"]);
                     }

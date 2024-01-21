@@ -5,6 +5,7 @@ using UnityEngine;
 using USTManager.Data;
 using USTManager.Utility;
 using Newtonsoft.Json;
+using System;
 
 namespace USTManager
 {
@@ -23,33 +24,32 @@ namespace USTManager
                 try
                 {
                     CustomUST ust = JsonConvert.DeserializeObject<CustomUST>(File.ReadAllText(file.FullName));
-                    if(ust != null)
+                    if(ust == null) continue;
+
+                    ust.Path = file.Directory.FullName;
+                    ust.Hash = Hash128.Compute(ust.Path).ToString();
+                    foreach(Dictionary<string, string> level in ust.Levels.Values)
                     {
-                        ust.Path = file.Directory.FullName;
-                        ust.Hash = Hash128.Compute(ust.Path).ToString();
-                        ust.Levels = ust.Levels.Select(level =>
+                        foreach(string track in level.Keys.ToArray())
                         {
-                            return new KeyValuePair<string, List<CustomUST.Descriptor>>(level.Key, level.Value.Select(desc =>
-                            {
-                                desc.Path = Path.Combine(ust.Path, desc.Path);
-                                return desc;
-                            }).ToList());
-                        }).ToDictionary(x => x.Key, x => x.Value);
-                        string iconPath = Path.Combine(file.Directory.FullName, "icon.png");
-                        if(File.Exists(iconPath))
-                        {
-                            Texture2D icon = new Texture2D(100, 100);
-                            if(icon.LoadImage(File.ReadAllBytes(iconPath)))
-                            {
-                                ust.Icon = Sprite.Create(icon, new Rect(0, 0, icon.width, icon.height), new Vector2(0.5f, 0.5f));
-                            }
+                            level[track] = Path.Combine(ust.Path, level[track]);
                         }
-                        AllUSTs.Add(ust);
                     }
+                    string iconPath = Path.Combine(file.Directory.FullName, "icon.png");
+                    if(File.Exists(iconPath))
+                    {
+                        Texture2D icon = new Texture2D(100, 100);
+                        if(icon.LoadImage(File.ReadAllBytes(iconPath)))
+                        {
+                            ust.Icon = Sprite.Create(icon, new Rect(0, 0, icon.width, icon.height), new Vector2(0.5f, 0.5f));
+                        }
+                    }
+                    AllUSTs.Add(ust);
                 }
-                catch
+                catch(Exception ex)
                 {
                     Logging.LogError($"Failed to load UST {file.Name}: Invalid JSON");
+                    Debug.LogError(ex);
                 }
             }
         }
@@ -68,42 +68,45 @@ namespace USTManager
             {
                 foreach(var desc in level.Value)
                 {
-                    if(!ust.IsMerged && !File.Exists(Path.Combine(path, desc.Path)))
+                    string trackPart = desc.Key;
+                    string trackPath = desc.Value;
+
+                    if(!ust.IsMerged && !File.Exists(Path.Combine(path, trackPath)))
                     {
                         Logging.Log("Skipping");
                         continue;
                     }
-                    var d = clips.Where(x => x.Value.name == "[UST] " + Path.GetFileNameWithoutExtension(desc.Path));
+                    var d = clips.Where(x => x.Value.name == "[UST] " + Path.GetFileNameWithoutExtension(trackPath));
                     if(d.Count() > 0)
                     {
                         if(level.Key == "global")
                         {
-                            if(clips.ContainsKey(desc.Part)) continue;
-                            clips.Add(desc.Part, d.First().Value);
+                            if(clips.ContainsKey(trackPart)) continue;
+                            clips.Add(trackPart, d.First().Value);
                             Logging.Log($"Adding clip {d.First().Value.name}");
                         }
                         else
                         {
-                            if(clips.ContainsKey($"{level.Key}:{desc.Part}")) continue;
-                            clips.Add($"{level.Key}:{desc.Part}", d.First().Value);
-                            Logging.Log($"Adding clip {level.Key + ":" + desc.Part}");
+                            if(clips.ContainsKey($"{level.Key}:{trackPart}")) continue;
+                            clips.Add($"{level.Key}:{trackPart}", d.First().Value);
+                            Logging.Log($"Adding clip {level.Key + ":" + trackPart}");
                         }
                         continue;
                     }
-                    AudioClip clip = Loader.LoadClipFromPath(desc.Path);
+                    AudioClip clip = Loader.LoadClipFromPath(trackPath);
                     if(clip != null)
                     {
                         if(level.Key == "global")
                         {
-                            if(clips.ContainsKey(desc.Part)) continue;
-                            clips.Add(desc.Part, clip);
+                            if(clips.ContainsKey(trackPart)) continue;
+                            clips.Add(trackPart, clip);
                             Logging.Log($"Adding clip {clip.name}");
                         }
                         else
                         {
-                            if(clips.ContainsKey($"{level.Key}:{desc.Part}")) continue;
-                            clips.Add($"{level.Key}:{desc.Part}", clip);
-                            Logging.Log($"Adding clip {level.Key + ":" + desc.Part}");
+                            if(clips.ContainsKey($"{level.Key}:{trackPart}")) continue;
+                            clips.Add($"{level.Key}:{trackPart}", clip);
+                            Logging.Log($"Adding clip {level.Key + ":" + trackPart}");
                         }
                     }
                     else Logging.Log("Something went wrong with this clip");
