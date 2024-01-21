@@ -31,30 +31,7 @@ namespace USTManager.Patches
         [HarmonyPatch(typeof(AudioSource), "Play", [])]
         public static void Play(AudioSource __instance)
         {
-            if(Manager.IsDebug) ShowDebugText(__instance);
-
             Manager.HandleAudioSource(SceneHelper.CurrentScene, __instance);
-        }
-
-        private static void ShowDebugText(AudioSource source)
-        {
-            Logging.Log($"Playing {source.clip.name} in {SceneHelper.CurrentScene}");
-            if(source.clip == null) return;
-
-            if(source.name.Contains("Theme") || source.name.Contains("Music"))
-            {
-                // TODO: Add text to screen instead of world
-            }
-            else
-            {
-                GameObject obj = GameObject.Instantiate(Plugin.DebugTextPrefab, source.transform.position, Quaternion.identity);
-                obj.transform.localScale /= 2;
-                obj.GetComponent<TMP_Text>().text = source.clip.name;
-                var constraint = obj.GetComponent<RotationConstraint>();
-                constraint.AddSource(new ConstraintSource() { sourceTransform = CameraController.Instance.transform, weight = 1 });
-                constraint.constraintActive = true;
-                Plugin.RunCoroutine(DestroyAfter(obj, 2f));
-            }
         }
 
         /*
