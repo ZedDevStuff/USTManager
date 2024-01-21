@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using BepInEx.Configuration;
+
 using USTManager.Data;
 
 namespace USTManager.Utility
@@ -17,7 +17,7 @@ namespace USTManager.Utility
                 IsMerged = true,
                 Levels = new()
             };
-            
+
             foreach(CustomUST ust in USTs)
             {
                 foreach(var level in ust.Levels)
@@ -42,7 +42,7 @@ namespace USTManager.Utility
                                 List<CustomUST.Descriptor> parts = new();
                                 foreach(CustomUST.Descriptor part in level.Value)
                                 {
-                                    parts.Add(new(part.Part, Path.Combine(ust.Path,part.Path))); 
+                                    parts.Add(new(part.Part, Path.Combine(ust.Path, part.Path)));
                                 }
                                 merged.Levels.Add(level.Key, parts);
                             }
@@ -68,13 +68,13 @@ namespace USTManager.Utility
                                             conflicts[$"global:{entry.Part}"].Add(ust);
                                         }
                                     }
-                                    else 
+                                    else
                                     {
                                         if(!merged.Levels.ContainsKey("global"))
                                         {
-                                            merged.Levels.Add("global",[new(entry.Part,Path.Combine(ust.Path,entry.Path))]);
+                                            merged.Levels.Add("global", [new(entry.Part, Path.Combine(ust.Path, entry.Path))]);
                                         }
-                                        else merged.Levels["global"].Add(new(entry.Part,Path.Combine(ust.Path,entry.Path)));
+                                        else merged.Levels["global"].Add(new(entry.Part, Path.Combine(ust.Path, entry.Path)));
                                     }
                                 }
                             }
@@ -90,12 +90,12 @@ namespace USTManager.Utility
     public class Conflict
     {
         private CustomUST original;
-        public Dictionary<string,List<CustomUST>> Conflicts = new();
-        private Dictionary<string,CustomUST> Merged = new();
+        public Dictionary<string, List<CustomUST>> Conflicts = new();
+        private Dictionary<string, CustomUST> Merged = new();
         public int ConflictCount => Conflicts.Count;
         public int SolvedCount => Merged.Count;
 
-        public Conflict(CustomUST original, Dictionary<string,List<CustomUST>> conflicts)
+        public Conflict(CustomUST original, Dictionary<string, List<CustomUST>> conflicts)
         {
             this.original = original;
             Conflicts = conflicts;
@@ -109,7 +109,7 @@ namespace USTManager.Utility
                     Logging.Log($"Resolved conflict for {key} with {UST.Name}");
                     if(Merged.ContainsKey(key)) Merged[key] = UST;
                     else Merged.Add(key, UST);
-                    
+
                 }
             }
         }
@@ -126,7 +126,7 @@ namespace USTManager.Utility
                         {
                             original.Levels["global"].AddRange(entry.Value.Levels["global"]);
                         }
-                        else original.Levels.Add("global",entry.Value.Levels["global"]);
+                        else original.Levels.Add("global", entry.Value.Levels["global"]);
                     }
                     else original.Levels[entry.Key] = entry.Value.Levels[entry.Key];
                 }
