@@ -280,7 +280,17 @@ namespace USTManager
                     "Music 3" => "boss2",     // Minos Prime
                     _ => null,
                 },
-                "P-2" => null, // not currently supported
+                "P-2" => source.clip.name switch
+                {
+                    "Weihnachten Am Klavier Subtler" => "intro",
+                    "Deep Drone 5B" => "weezer",
+                    "P-2 Clean" => "clean",
+                    "P-2" => "battle",
+                    "Flesh panopticon" => "boss1",
+                    "Sisyphus Prime Intro" => "speech",
+                    "Sisyphus Prime" => "boss2",
+                    _ => null,
+                },
 
                 _ => source.name switch
                 {
@@ -295,7 +305,7 @@ namespace USTManager
             if(key != null && CustomUST.ContainsKey(key))
             {
                 source.clip = CustomUST[key];
-                if(key is "2-4:boss1" or "2-4:boss2" or "7-1:boss2")
+                if(key is "2-4:boss1" or "2-4:boss2" or "7-1:boss2" or "P-2:intro")
                 {
                     source.pitch = 1f;
                 }
