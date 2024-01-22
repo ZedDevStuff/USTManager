@@ -10,14 +10,11 @@ Install from thunderstore either manually or using r2modman OR build from source
 
 # Known issues
 
-- 7-4 Isn't compatible right now, but you can use the global space to change the songs manually. Proper support coming soon.
 - Secret levels don't work yet, but it could be possible that using the global sound replacement, they could work
-- P-2 Isn't compatible at the moment but is planned
+- Some sounds can't be replaced. Actively looking for a solution (Patching all sources Awake methods, which Harmony can't do because AudioSource.Awake doesn't exist according to Harmony)
 
 # Roadmap
 
-- Missing levels
-- More debug options for soundtrack makers
 - UST Editor
 - Sorting in the menu
 - Shuffle

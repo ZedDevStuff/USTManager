@@ -19,7 +19,6 @@ namespace USTManager.Data
         public Dictionary<string, Dictionary<string, string>> Levels = [];
 
         [JsonIgnore] public string Path;
-        [JsonIgnore] public FileInfo File;
         [JsonIgnore] public bool IsMerged = false;
         [JsonIgnore] public Color UserColor = Color.white;
         [JsonIgnore] public Sprite Icon = null;
@@ -42,15 +41,18 @@ namespace USTManager.Data
             {
                 Levels = {
                     {
-                        "global", new() {
-                            { "audioClipName", "relative/path/to/audio" }
-                        }
-                    },
-                    {
-                        "comments", new() {
+                        "comments", new() 
+                        {
                             { "Comment", "This is an example UST file. It will get regenerated each time you launch the game with USTManager installed. Omit any unused parts." }
                         }
                     },
+                    {
+                        "global", new() 
+                        {
+                            { "audioClipName", "relative/path/to/audio" }
+                        }
+                    },
+                    
 
                     // Prelude
                     { "0-0", standard },
@@ -141,8 +143,6 @@ namespace USTManager.Data
 
             return true;
         }
-
-        // It never makes sense to use a CustomUST as a dictionary key. Equality is already of questionable necessity.
         public override int GetHashCode() => throw new NotImplementedException();
     }
 }

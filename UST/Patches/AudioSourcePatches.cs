@@ -4,6 +4,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine.Animations;
 using USTManager.Utility;
+using System;
 
 namespace USTManager.Patches
 {
@@ -11,7 +12,7 @@ namespace USTManager.Patches
     {
         // I don't remember why I made this. it does work but i don't really see much of a point anymore.
         // I'll keep it here for now just in case i ever need it.
-        /*[HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPrefix]
+        [HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPrefix]
         public static void StatsManagerAwake(StatsManager __instance)
         {
             if(!Manager.IsEnabled) return;
@@ -21,14 +22,14 @@ namespace USTManager.Patches
                 if(Manager.IsDebug && source.clip != null && source.playOnAwake && !source.gameObject.activeInHierarchy) Logging.Log($"PlayOnAwake ({source.gameObject.name}): {source.clip.name}");
                 if(source.clip != null)
                 {
-                    Manager.HandleAudio(SceneHelper.CurrentScene, source, null, null);
+                    Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
                 }
             }
-        }*/
+        }
 
-        [HarmonyPrefix]
         [HarmonyPatch(typeof(AudioSource), "Play", [typeof(double)])]
         [HarmonyPatch(typeof(AudioSource), "Play", [])]
+        [HarmonyPrefix]
         public static void Play(AudioSource __instance)
         {
             Manager.HandleAudioSource(SceneHelper.CurrentScene, __instance);
@@ -65,7 +66,6 @@ namespace USTManager.Patches
         {
             if(__instance.TryGetComponent<AudioSource>(out AudioSource source))
             {
-                if(Manager.IsDebug) Logging.Log($"Crossfade: {source.clip.name} in {SceneHelper.CurrentScene}");
                 Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
                 if(source.playOnAwake) source.Play();
             }
@@ -75,7 +75,8 @@ namespace USTManager.Patches
         {
             return Manager.HandleMusicChanger(SceneHelper.CurrentScene, __instance);
         }
-        public static void HandleInstantiate(GameObject obj)
+
+        /*public static void HandleInstantiate(GameObject obj)
         {
             Logging.Log($"Instantiating {obj.name} in {SceneHelper.CurrentScene}");
             AudioSource source = obj.GetComponentInChildren<AudioSource>();
@@ -84,7 +85,7 @@ namespace USTManager.Patches
                 Logging.Log($"Instantiating {source.clip.name} in {SceneHelper.CurrentScene}");
                 Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
             }
-        }
+        }*/
 
         public static IEnumerator DestroyAfter(GameObject obj, float time)
         {

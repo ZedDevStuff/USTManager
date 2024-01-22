@@ -11,13 +11,17 @@ namespace USTManager
 {
     public static class Manager
     {
-        public static bool CurrentLevelHandled { get; private set; } = false;
+        public static bool IsEnabled = true;
+        public static bool IsDebug = false;
+        public static float DebugLifetime = 1f;
+
         private static Dictionary<string, AudioClip> CustomUST = new();
         public static List<CustomUST> AllUSTs = new();
         public static void CheckUSTs()
         {
             FileInfo[] files = Directory.GetFiles(Path.Combine(Plugin.UKPath, "USTs"), "*.ust", SearchOption.AllDirectories).Select(x => new FileInfo(x)).ToArray();
             AllUSTs.Clear();
+            LegacyUSTConverter.legacyUSTs.Clear();
             foreach(FileInfo file in files)
             {
                 if(file.Name == "template.ust") continue;
@@ -48,9 +52,21 @@ namespace USTManager
                 }
                 catch(Exception ex)
                 {
-                    Logging.LogError($"Failed to load UST {file.Name}: Invalid JSON");
-                    Debug.LogError(ex);
+                    if(LegacyUSTConverter.IsLegacyUST(file.FullName))
+                    {
+                        Logging.Log("Legacy UST detected", Color.yellow);
+                    }
+                    else
+                    {
+                        Logging.LogError($"Failed to load UST {file.Name}: Invalid JSON");
+                        Logging.Log(ex, Color.red);
+                    } 
                 }
+            }
+            if(LegacyUSTConverter.legacyUSTs.Count > 0)
+            {
+                LegacyUSTConverter.ConvertLegacyUSTs();
+                USTSelectionScreen.Instance.Refresh();
             }
         }
 
@@ -71,11 +87,7 @@ namespace USTManager
                     string trackPart = desc.Key;
                     string trackPath = desc.Value;
 
-                    if(!ust.IsMerged && !File.Exists(Path.Combine(path, trackPath)))
-                    {
-                        Logging.Log("Skipping");
-                        continue;
-                    }
+                    if(!ust.IsMerged && !File.Exists(Path.Combine(path, trackPath))) continue;
                     var d = clips.Where(x => x.Value.name == "[UST] " + Path.GetFileNameWithoutExtension(trackPath));
                     if(d.Count() > 0)
                     {
@@ -83,13 +95,13 @@ namespace USTManager
                         {
                             if(clips.ContainsKey(trackPart)) continue;
                             clips.Add(trackPart, d.First().Value);
-                            Logging.Log($"Adding clip {d.First().Value.name}");
+                            Logging.Log($"Adding clip {d.First().Value.name}", Color.green);
                         }
                         else
                         {
                             if(clips.ContainsKey($"{level.Key}:{trackPart}")) continue;
                             clips.Add($"{level.Key}:{trackPart}", d.First().Value);
-                            Logging.Log($"Adding clip {level.Key + ":" + trackPart}");
+                            Logging.Log($"Adding clip {level.Key + ":" + trackPart}", Color.green);
                         }
                         continue;
                     }
@@ -100,16 +112,16 @@ namespace USTManager
                         {
                             if(clips.ContainsKey(trackPart)) continue;
                             clips.Add(trackPart, clip);
-                            Logging.Log($"Adding clip {clip.name}");
+                            Logging.Log($"Adding clip {clip.name}", Color.green);
                         }
                         else
                         {
                             if(clips.ContainsKey($"{level.Key}:{trackPart}")) continue;
                             clips.Add($"{level.Key}:{trackPart}", clip);
-                            Logging.Log($"Adding clip {level.Key + ":" + trackPart}");
+                            Logging.Log($"Adding clip {level.Key + ":" + trackPart}", Color.green);
                         }
                     }
-                    else Logging.Log("Something went wrong with this clip");
+                    else Logging.Log("Something went wrong with this clip", Color.red);
                 }
             }
             if(clips.Count > 0)
@@ -118,9 +130,6 @@ namespace USTManager
                 CustomUST = clips;
             }
         }
-        public static bool IsEnabled = true;
-        public static bool IsDebug = false;
-
         public static void HandleAudioSource(string level, AudioSource source)
         {
             if(!IsEnabled) return;

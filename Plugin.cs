@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace USTManager
 {
-    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.3.1")]
+    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.4.0")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir;
