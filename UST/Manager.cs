@@ -5,52 +5,68 @@ using UnityEngine;
 using USTManager.Data;
 using USTManager.Utility;
 using Newtonsoft.Json;
+using System;
 
 namespace USTManager
 {
     public static class Manager
     {
-        public static bool CurrentLevelHandled { get; private set; } = false;
+        public static bool IsEnabled = true;
+        public static bool IsDebug = false;
+        public static float DebugLifetime = 1f;
+
         private static Dictionary<string, AudioClip> CustomUST = new();
         public static List<CustomUST> AllUSTs = new();
         public static void CheckUSTs()
         {
             FileInfo[] files = Directory.GetFiles(Path.Combine(Plugin.UKPath, "USTs"), "*.ust", SearchOption.AllDirectories).Select(x => new FileInfo(x)).ToArray();
             AllUSTs.Clear();
+            LegacyUSTConverter.legacyUSTs.Clear();
             foreach(FileInfo file in files)
             {
                 if(file.Name == "template.ust") continue;
                 try
                 {
                     CustomUST ust = JsonConvert.DeserializeObject<CustomUST>(File.ReadAllText(file.FullName));
-                    if(ust != null)
+                    if(ust == null) continue;
+
+                    ust.Path = file.Directory.FullName;
+                    ust.Hash = Hash128.Compute(ust.Path).ToString();
+                    foreach(Dictionary<string, string> level in ust.Levels.Values)
                     {
-                        ust.Path = file.Directory.FullName;
-                        ust.Hash = Hash128.Compute(ust.Path).ToString();
-                        ust.Levels = ust.Levels.Select(level =>
+                        foreach(string track in level.Keys.ToArray())
                         {
-                            return new KeyValuePair<string, List<CustomUST.Descriptor>>(level.Key, level.Value.Select(desc =>
-                            {
-                                desc.Path = Path.Combine(ust.Path, desc.Path);
-                                return desc;
-                            }).ToList());
-                        }).ToDictionary(x => x.Key, x => x.Value);
-                        string iconPath = Path.Combine(file.Directory.FullName, "icon.png");
-                        if(File.Exists(iconPath))
-                        {
-                            Texture2D icon = new Texture2D(100, 100);
-                            if(icon.LoadImage(File.ReadAllBytes(iconPath)))
-                            {
-                                ust.Icon = Sprite.Create(icon, new Rect(0, 0, icon.width, icon.height), new Vector2(0.5f, 0.5f));
-                            }
+                            level[track] = Path.Combine(ust.Path, level[track]);
                         }
-                        AllUSTs.Add(ust);
                     }
+                    string iconPath = Path.Combine(file.Directory.FullName, "icon.png");
+                    if(File.Exists(iconPath))
+                    {
+                        Texture2D icon = new Texture2D(100, 100);
+                        if(icon.LoadImage(File.ReadAllBytes(iconPath)))
+                        {
+                            ust.Icon = Sprite.Create(icon, new Rect(0, 0, icon.width, icon.height), new Vector2(0.5f, 0.5f));
+                        }
+                    }
+                    AllUSTs.Add(ust);
                 }
-                catch
+                catch(Exception ex)
                 {
-                    Logging.LogError($"Failed to load UST {file.Name}: Invalid JSON");
+                    if(LegacyUSTConverter.IsLegacyUST(file.FullName))
+                    {
+                        Logging.Log("Legacy UST detected", Color.yellow);
+                    }
+                    else
+                    {
+                        Logging.LogError($"Failed to load UST {file.Name}: Invalid JSON");
+                        Logging.Log(ex, Color.red);
+                    } 
                 }
+            }
+            if(LegacyUSTConverter.legacyUSTs.Count > 0)
+            {
+                LegacyUSTConverter.ConvertLegacyUSTs();
+                USTSelectionScreen.Instance.Refresh();
             }
         }
 
@@ -68,45 +84,44 @@ namespace USTManager
             {
                 foreach(var desc in level.Value)
                 {
-                    if(!ust.IsMerged && !File.Exists(Path.Combine(path, desc.Path)))
-                    {
-                        Logging.Log("Skipping");
-                        continue;
-                    }
-                    var d = clips.Where(x => x.Value.name == "[UST] " + Path.GetFileNameWithoutExtension(desc.Path));
+                    string trackPart = desc.Key;
+                    string trackPath = desc.Value;
+
+                    if(!ust.IsMerged && !File.Exists(Path.Combine(path, trackPath))) continue;
+                    var d = clips.Where(x => x.Value.name == "[UST] " + Path.GetFileNameWithoutExtension(trackPath));
                     if(d.Count() > 0)
                     {
                         if(level.Key == "global")
                         {
-                            if(clips.ContainsKey(desc.Part)) continue;
-                            clips.Add(desc.Part, d.First().Value);
-                            Logging.Log($"Adding clip {d.First().Value.name}");
+                            if(clips.ContainsKey(trackPart)) continue;
+                            clips.Add(trackPart, d.First().Value);
+                            Logging.Log($"Adding clip {d.First().Value.name}", Color.green);
                         }
                         else
                         {
-                            if(clips.ContainsKey($"{level.Key}:{desc.Part}")) continue;
-                            clips.Add($"{level.Key}:{desc.Part}", d.First().Value);
-                            Logging.Log($"Adding clip {level.Key + ":" + desc.Part}");
+                            if(clips.ContainsKey($"{level.Key}:{trackPart}")) continue;
+                            clips.Add($"{level.Key}:{trackPart}", d.First().Value);
+                            Logging.Log($"Adding clip {level.Key + ":" + trackPart}", Color.green);
                         }
                         continue;
                     }
-                    AudioClip clip = Loader.LoadClipFromPath(desc.Path);
+                    AudioClip clip = Loader.LoadClipFromPath(trackPath);
                     if(clip != null)
                     {
                         if(level.Key == "global")
                         {
-                            if(clips.ContainsKey(desc.Part)) continue;
-                            clips.Add(desc.Part, clip);
-                            Logging.Log($"Adding clip {clip.name}");
+                            if(clips.ContainsKey(trackPart)) continue;
+                            clips.Add(trackPart, clip);
+                            Logging.Log($"Adding clip {clip.name}", Color.green);
                         }
                         else
                         {
-                            if(clips.ContainsKey($"{level.Key}:{desc.Part}")) continue;
-                            clips.Add($"{level.Key}:{desc.Part}", clip);
-                            Logging.Log($"Adding clip {level.Key + ":" + desc.Part}");
+                            if(clips.ContainsKey($"{level.Key}:{trackPart}")) continue;
+                            clips.Add($"{level.Key}:{trackPart}", clip);
+                            Logging.Log($"Adding clip {level.Key + ":" + trackPart}", Color.green);
                         }
                     }
-                    else Logging.Log("Something went wrong with this clip");
+                    else Logging.Log("Something went wrong with this clip", Color.red);
                 }
             }
             if(clips.Count > 0)
@@ -115,9 +130,6 @@ namespace USTManager
                 CustomUST = clips;
             }
         }
-        public static bool IsEnabled = true;
-        public static bool IsDebug = false;
-
         public static void HandleAudioSource(string level, AudioSource source)
         {
             if(!IsEnabled) return;
@@ -139,94 +151,94 @@ namespace USTManager
             {
                 "0-5" => source.clip.name switch
                 {
-                    "Cerberus A" => "0-5:boss1",
-                    "Cerberus B" => "0-5:boss2",
+                    "Cerberus A" => "boss1",
+                    "Cerberus B" => "boss2",
                     _ => null
                 },
                 "1-1" => HeartOfTheSunrise(source.clip.name),
                 "1-2" => TheBurningWorld(source.clip.name, source.name == "CleanTheme"),
                 "1-4" => source.clip.name switch
                 {
-                    "V2 Intro" => "1-4:intro",
-                    "V2 1-4" => "1-4:boss",
+                    "V2 Intro" => "intro",
+                    "V2 1-4" => "boss",
                     _ => null
                 },
                 "2-4" => source.clip.name switch
                 {
-                    "Minos Corpse A" => "2-4:boss1",
-                    "Minos Corpse B" => "2-4:boss2",
+                    "Minos Corpse A" => "boss1",
+                    "Minos Corpse B" => "boss2",
                     _ => null
                 },
                 "3-1" => source.clip.name switch
                 {
-                    "3-1 Guts Clean" => "3-1:clean1",
-                    "3-1 Glory Clean" => "3-1:clean2",
-                    "3-1 Guts" => "3-1:battle1",
-                    "3-1 Glory" => "3-1:battle2",
+                    "3-1 Guts Clean" => "clean1",
+                    "3-1 Glory Clean" => "clean2",
+                    "3-1 Guts" => "battle1",
+                    "3-1 Glory" => "battle2",
                     _ => null,
                 },
                 "3-2" => source.name switch
                 {
-                    "Music 1" => "3-2:intro1", // Flesh Ambiance
-                    "Music 2" => "3-2:intro2", // Gabriel 3-2 Intro
-                    "Music 3" => "3-2:boss", // Gabriel 3-2
+                    "Music 1" => "intro1", // Flesh Ambiance
+                    "Music 2" => "intro2", // Gabriel 3-2 Intro
+                    "Music 3" => "boss", // Gabriel 3-2
                     _ => null,
                 },
                 "4-3" => AShotInTheDark(source.clip.name),
                 "4-4" => source.clip.name switch
                 {
-                    "V2 4-4" => "4-4:boss",
+                    "V2 4-4" => "boss",
                     _ => null,
                 },
                 "5-2" => source.clip.name switch
                 {
-                    "Ferryman A" => "5-2:boss1",
-                    "Ferryman B" => "5-2:boss2",
-                    "Ferryman C" => "5-2:boss3",
+                    "Ferryman A" => "boss1",
+                    "Ferryman B" => "boss2",
+                    "Ferryman C" => "boss3",
                     _ => null
                 },
                 "5-3" => source.name switch
                 {
                     // 5-3 Clean, 5-3 Aftermath Intro, 5-3 Aftermath Clean
-                    "CleanTheme" => source.clip.name.Contains("Aftermath") ? "5-3:clean2" : "5-3:clean1",
+                    "CleanTheme" => source.clip.name.Contains("Aftermath") ? "clean2" : "clean1",
                     // 5-3, 5-3 Aftermath Intro, 5-3 Aftermath
-                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Aftermath") ? "5-3:battle2" : "5-3:battle1",
+                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Aftermath") ? "battle2" : "battle1",
                     _ => null,
                 },
                 "5-4" => source.name switch
                 {
-                    "Music 1" => "5-4:boss1", // Leviathan A
-                    "Music 2" => "5-4:boss2", // Leviathan B
+                    "Music 1" => "boss1", // Leviathan A
+                    "Music 2" => "boss2", // Leviathan B
                     _ => null
                 },
                 "6-1" => source.name switch
                 {
                     // CleanTheme / 6-1 Clean
                     // CleanTheme / Deep Drone 1
-                    "CleanTheme" => source.clip.name.Contains("6-1") ? "6-1:clean" : null,
+                    "CleanTheme" => source.clip.name.Contains("6-1") ? "clean" : null,
 
                     // BattleTheme / 6-1
                     // BattleTheme / Deep Drone 3B
                     // BossTheme / 6-1
                     // BossTheme / Deep Drone 3
-                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("6-1") ? "6-1:battle" : null,
+                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("6-1") ? "battle" : null,
 
                     // ClimaxMusic / 6-1 Hall of Sacreligious Remains
-                    "ClimaxMusic" => "6-1:boss",
+                    "ClimaxMusic" => "boss",
 
                     _ => null,
                 },
                 "6-2" => source.name switch
                 {
-                    "BossMusic" => "6-2:boss", // Gabriel 6-2
+                    "BossMusic" => "boss", // Gabriel 6-2
                     _ => null
                 },
                 "7-1" => source.name switch
                 {
-                    "CleanTheme" => "7-1:clean", // 7-1 Clean
-                    "BattleTheme" => "7-1:battle", // 7-1
-                    "MinotaurPhase1Music" => "7-1:boss1", // Minotaur A
-                    "MinotaurPhase2Music" => "7-2:boss2", // Minotaur B
+                    "CleanTheme" => "clean", // 7-1 Clean
+                    "BattleTheme" => "battle", // 7-1
+                    "MinotaurPhase1Music" => "boss1", // Minotaur A
+                    "MinotaurPhase2Music" => "boss2", // Minotaur B
                     // Wind / Windloop
                     // IntroMusic / 7-1 Intro
                     // MinotaurIntroMusic / MinotaurIntro
@@ -235,49 +247,77 @@ namespace USTManager
                 "7-2" => source.name switch
                 {
                     // 7-2 Intro Clean, 7-2 Clean
-                    "CleanTheme" => source.clip.name.Contains("Intro") ? "7-2:clean1" : "7-2:clean2",
+                    "CleanTheme" => source.clip.name.Contains("Intro") ? "clean1" : "clean2",
                     // 7-2 Intro Battle, 7-2
-                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Intro") ? "7-2:battle1" : "7-2:battle2",
+                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Intro") ? "battle1" : "battle2",
                     _ => null,
                 },
                 "7-3" => source.name switch
                 {
                     // 7-3 Intro Clean, 7-3 Clean
-                    "CleanTheme" => source.clip.name.Contains("Intro") ? "7-3:clean1" : "7-3:clean2",
+                    "CleanTheme" => source.clip.name.Contains("Intro") ? "clean1" : "clean2",
                     // 7-3 Intro Clean, 7-3
-                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Intro") ? "7-3:battle1" : "7-3:battle2",
+                    "BattleTheme" or "BossTheme" => source.clip.name.Contains("Intro") ? "battle1" : "battle2",
                     // Wind / WindLoopHaunted
                     // Drone3 / MollyCorrupted4
                     _ => null,
                 },
-                "7-4" => null, // not currently supported
-                "P-1" => source.clip.name switch
+                "7-4" => source.clip.name switch
                 {
-                    // Chaos / Flesh Prison
-                    "Flesh Prison" => "P-1:boss1",
+                    "Centaur A-1" => "outside1", // Ground
+                    "Centaur A-2" => "outside2", // Air
+                    "Centaur A-3" => "outside3", // Front
+                    "Centaur A-4" => "outside4", // House
+                    "Centaur A-5" => "outside5", // SecurityBoss
+                    "Centaur A-6" => "outside6", // Interlude
 
-                    // IntroMusic / Minos Prime Intro
-                    // Music 3 / Minos Prime
-                    "Minos Prime Intro" or "Minos Prime" => "P-1:boss2",
+                    "Centaur B-1" => "inside1", // Alarm
+                    "Centaur B-2" => "inside2", // BrainPath
+                    "Centaur B-3" => "inside3", // BrainFight
 
-                    // Sourire / Sourire d'avril
+                    "Centaur B-4" => "escape1", // Escape
+                    "Centaur B-5" => "escape2", // EscapeFight
+                    "Centaur B-6" => "escape3", // End
+
                     _ => null,
                 },
-                "P-2" => null, // not currently supported
+                "P-1" => source.name switch
+                {
+                    "Sourire" => "intro1",    // Sourire d'avril
+                    "Sourire 2" => "intro2",  // Sourire d'avril corrupted 2
+                    "Sourire 3" => "intro3",  // Sourire d'avril corrupted 5
+                    "Sourire 4" => "intro4",  // Sourire d'avril corrupted 6
+                    "Chaos" => "boss1",       // Flesh Prison
+                    "IntroMusic" => "speech", // Minos Prime Intro
+                    "Music 3" => "boss2",     // Minos Prime
+                    _ => null,
+                },
+                "P-2" => source.clip.name switch
+                {
+                    "Weihnachten Am Klavier Subtler" => "intro",
+                    "Deep Drone 5B" => "weezer",
+                    "P-2 Clean" => "clean",
+                    "P-2" => "battle",
+                    "Flesh panopticon" => "boss1",
+                    "Sisyphus Prime Intro" => "speech",
+                    "Sisyphus Prime" => "boss2",
+                    _ => null,
+                },
 
                 _ => source.name switch
                 {
-                    "CleanTheme" => level + ":clean",
-                    "BossTheme" when CustomUST.ContainsKey(level + ":boss") => level + ":boss",
-                    "BattleTheme" or "BossTheme" => level + ":battle",
+                    "CleanTheme" => "clean",
+                    "BossTheme" when CustomUST.ContainsKey(level + ":boss") => "boss",
+                    "BattleTheme" or "BossTheme" => "battle",
                     _ => null,
                 },
             };
+            if(key != null) key = $"{level}:{key}";
 
             if(key != null && CustomUST.ContainsKey(key))
             {
                 source.clip = CustomUST[key];
-                if(key is "2-4:boss1" or "2-4:boss2" or "7-1:boss2")
+                if(key is "2-4:boss1" or "2-4:boss2" or "7-1:boss2" or "P-2:intro")
                 {
                     source.pitch = 1f;
                 }
@@ -315,6 +355,7 @@ namespace USTManager
                 "4-3" => AShotInTheDark(clip.name),
                 _ => null,
             };
+            if(key != null) key = $"{level}:{key}";
 
             if(key != null && CustomUST.ContainsKey(key))
             {
@@ -336,30 +377,30 @@ namespace USTManager
 
         private static string HeartOfTheSunrise(string clipName) => clipName switch
         {
-            "A Thousand Greetings" => "1-1:clean1",
-            "1-1 Clean" => "1-1:clean2",
-            "1-1" => "1-1:battle",
+            "A Thousand Greetings" => "clean1",
+            "1-1 Clean" => "clean2",
+            "1-1" => "battle",
             _ => null,
         };
 
         private static string TheBurningWorld(string clipName, bool clean) => clipName switch
         {
-            "A Thousand Greetings" => clean ? "1-2:clean0" : "1-2:battle0",
-            "1-2 Dark Clean" => "1-2:clean1",
-            "1-2 Noise Clean" => "1-2:clean2",
-            "1-2 Dark Battle" => "1-2:battle1",
-            "1-2 Noise Battle" => "1-2:battle2",
+            "A Thousand Greetings" => clean ? "clean0" : "battle0",
+            "1-2 Dark Clean" => "clean1",
+            "1-2 Noise Clean" => "clean2",
+            "1-2 Dark Battle" => "battle1",
+            "1-2 Noise Battle" => "battle2",
             _ => null,
         };
 
         private static string AShotInTheDark(string clipName) => clipName switch
         {
-            "4-3 Phase 1 Clean" => "4-3:clean1",
-            "4-3 Phase 2 Clean" => "4-3:clean2",
-            "4-3 Phase 3 Clean" => "4-3:clean3", // doesn't actually exist: when you clear the final arena, the game plays 4-3 Phase 1 Clean
-            "4-3 Phase 1" => "4-3:battle1",
-            "4-3 Phase 2" => "4-3:battle2",
-            "4-3 Phase 3" => "4-3:battle3",
+            "4-3 Phase 1 Clean" => "clean1",
+            "4-3 Phase 2 Clean" => "clean2",
+            "4-3 Phase 3 Clean" => "clean3", // doesn't actually exist: when you clear the final arena, the game plays 4-3 Phase 1 Clean
+            "4-3 Phase 1" => "battle1",
+            "4-3 Phase 2" => "battle2",
+            "4-3 Phase 3" => "battle3",
             _ => null,
         };
     }

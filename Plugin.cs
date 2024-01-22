@@ -1,15 +1,8 @@
 ﻿using BepInEx;
-using UnityEngine.SceneManagement;
-using Steamworks;
-using System.Diagnostics;
-using System.Reflection;
 using System.IO;
 using UnityEngine;
 using HarmonyLib;
-using ULTRAKILL;
 using GameConsole;
-using System.Linq;
-using Newtonsoft.Json;
 using USTManager.Data;
 using USTManager.Patches;
 using USTManager.Commands;
@@ -17,29 +10,29 @@ using TMPro;
 using UnityEngine.UI;
 using USTManager.Misc;
 using USTManager.Utility;
+using System.Linq;
 
 namespace USTManager
 {
-    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.3.1")]
+    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.4.0")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir;
-        public static GameObject DebugTextPrefab, MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab, ConflictEntryPrefab, ConflictResolutionScreenPrefab, ToastPrefab;
+        public static GameObject MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab, ConflictEntryPrefab, ConflictResolutionScreenPrefab, ToastPrefab;
         private void Awake()
         {
             instance = this;
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             Harmony.CreateAndPatchAll(typeof(AudioSourcePatches));
             Harmony.CreateAndPatchAll(typeof(MainMenuPatches));
-            
+
             UKPath = new DirectoryInfo(Application.dataPath).Parent.FullName;
-            DirectoryInfo ustDir = new(Path.Combine(UKPath,"USTs"));
+            DirectoryInfo ustDir = new(Path.Combine(UKPath, "USTs"));
             USTDir = ustDir.FullName;
             if(!ustDir.Exists) ustDir.Create();
-            
-            
+
+
             AssetBundle bundle = AssetBundle.LoadFromMemory(Resources.Resource1.ust);
-            DebugTextPrefab = bundle.LoadAsset<GameObject>("DebugText");
             MenuEntryPrefab = bundle.LoadAsset<GameObject>("MenuEntry");
             MenuEntryPrefab.AddComponent<HudOpenEffect>();
             SelectionScreenEntryPrefab = bundle.LoadAsset<GameObject>("USTEntry");
@@ -58,7 +51,7 @@ namespace USTManager
             Console.Instance.RegisterCommand(new USTToggle());
             Console.Instance.RegisterCommand(new USTDebug());
             CreateTemplate();
-            
+
         }
         public static USTSelectionScreen Screen;
         public static void OpenMenu(Transform transform)
@@ -80,10 +73,50 @@ namespace USTManager
         }
         public void CreateTemplate()
         {
-            Directory.CreateDirectory(Path.Combine(UKPath,"USTs","Template"));
-            File.WriteAllText(Path.Combine(UKPath,"USTs","Template","template.ust"), CustomUST.GetTemplateJson());
-            File.WriteAllText(Path.Combine(UKPath,"USTs","Template","readme.md"),StaticResources.Readme);
+            Directory.CreateDirectory(Path.Combine(UKPath, "USTs", "Template"));
+            File.WriteAllText(Path.Combine(UKPath, "USTs", "Template", "template.ust"), CustomUST.GetTemplateJson());
+            File.WriteAllText(Path.Combine(UKPath, "USTs", "Template", "readme.md"), StaticResources.Readme);
         }
-        
+
+        private void OnGUI()
+        {
+            if(!Manager.IsDebug) return;
+
+            AudioSource[] sources = FindObjectsOfType<AudioSource>()
+                .Where(s => s.isPlaying)
+                .Where(s => s.spatialBlend < 1.0)
+                //.OrderByDescending(s => s.clip.length)
+                .ToArray();
+
+            void DrawColumn(System.Action<AudioSource> action)
+            {
+                using var _ = new GUILayout.VerticalScope();
+                foreach(AudioSource s in sources)
+                {
+                    action(s);
+                }
+            }
+
+            GUIStyle style = GUI.skin.label;
+            style.fontSize = 24;
+
+            using var _ = new GUILayout.HorizontalScope();
+
+            style.normal.textColor = Color.green;
+            DrawColumn(s => GUILayout.Label(s.name));
+
+            GUILayout.Space(20);
+            style.normal.textColor = Color.white;
+            DrawColumn(s => GUILayout.Label(s.clip.name));
+
+            GUILayout.Space(20);
+            style.normal.textColor = Color.red;
+            DrawColumn(s =>
+            {
+                using var _ = new GUILayout.HorizontalScope();
+                GUILayout.Label(s.volume * 100 + "%");
+                GUILayout.HorizontalSlider(s.time, 0, s.clip.length, GUILayout.Width(150));
+            });
+        }
     }
 }

@@ -14,9 +14,11 @@ public class USTSelectionScreen : MonoBehaviour
     private ScrollRect ScrollRect;
     private GameObject EntryPrefab;
     private Button CreateButton, OpenFolderButton, RefreshButton, ExitButton, ConfirmButton;
+    public static USTSelectionScreen Instance { get; private set; }
 
     private void Awake()
     {
+        Instance = this;
         if(EntryPrefab == null) EntryPrefab = Plugin.SelectionScreenEntryPrefab;
         if(CreateButton == null) CreateButton = transform.GetChild(4).GetChild(0).GetComponent<Button>();
         if(OpenFolderButton == null)
