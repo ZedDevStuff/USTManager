@@ -13,18 +13,5 @@ namespace USTManager.Utility
             }
             return true;
         }
-
-        public static V GetOrAdd<K, V>(this Dictionary<K, V> dict, K key, V value)
-        {
-            if(dict.TryGetValue(key, out V existing))
-            {
-                return existing;
-            }
-            else
-            {
-                dict.Add(key, value);
-                return value;
-            }
-        }
     }
 }
