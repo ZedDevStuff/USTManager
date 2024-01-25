@@ -60,7 +60,7 @@ namespace USTManager
                     {
                         Logging.LogError($"Failed to load UST {file.Name}: Invalid JSON");
                         Logging.Log(ex, Color.red);
-                    } 
+                    }
                 }
             }
             if(LegacyUSTConverter.legacyUSTs.Count > 0)
@@ -157,10 +157,11 @@ namespace USTManager
                 },
                 "1-1" => HeartOfTheSunrise(source.clip.name),
                 "1-2" => TheBurningWorld(source.clip.name, source.name == "CleanTheme"),
-                "1-4" => source.clip.name switch
+                "1-4" => source.name switch
                 {
-                    "V2 Intro" => "intro",
-                    "V2 1-4" => "boss",
+                    "Music - Clair de Lune" => "piano", // Clair_de_lune_(Claude_Debussy)_Suite_bergamasque (CREATIVE COMMONS)
+                    "SlowMo" => "intro",                // V2 Intro
+                    "Music - Versus" => "boss",         // V2 1-4
                     _ => null
                 },
                 "2-4" => source.clip.name switch
@@ -187,7 +188,10 @@ namespace USTManager
                 "4-3" => AShotInTheDark(source.clip.name),
                 "4-4" => source.clip.name switch
                 {
+                    "Tanpura Drone" => "drone",
+                    "V2 Intro" => source.pitch < 1 ? "bassline" : "intro",
                     "V2 4-4" => "boss",
+                    "Versus2Outro" => "outro",
                     _ => null,
                 },
                 "5-2" => source.clip.name switch
@@ -327,6 +331,7 @@ namespace USTManager
         private static readonly HashSet<string> pitchedTracks = [
             "2-4:boss1",
             "2-4:boss2",
+            "4-4:bassline",
             "7-1:boss2",
             // The simple approach doesn't work here: the game continuously varies this source's pitch between 0.95 and 1.0 in a triangle wave pattern.
             // Support for disabling this effect TBD - it could be desirable.
