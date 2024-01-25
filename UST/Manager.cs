@@ -317,12 +317,21 @@ namespace USTManager
             if(key != null && CustomUST.ContainsKey(key))
             {
                 source.clip = CustomUST[key];
-                if(key is "2-4:boss1" or "2-4:boss2" or "7-1:boss2" or "P-2:intro")
+                if(pitchedTracks.Contains(key))
                 {
                     source.pitch = 1f;
                 }
             }
         }
+
+        private static readonly HashSet<string> pitchedTracks = [
+            "2-4:boss1",
+            "2-4:boss2",
+            "7-1:boss2",
+            // The simple approach doesn't work here: the game continuously varies this source's pitch between 0.95 and 1.0 in a triangle wave pattern.
+            // Support for disabling this effect TBD - it could be desirable.
+            //"P-2:intro",
+        ];
 
         public static bool HandleMusicChanger(string level, MusicChanger changer)
         {
