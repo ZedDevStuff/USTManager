@@ -12,7 +12,7 @@ namespace USTManager.Patches
     {
         // I don't remember why I made this. it does work but i don't really see much of a point anymore.
         // I'll keep it here for now just in case i ever need it.
-        [HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPrefix]
+        /*[HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPrefix]
         public static void StatsManagerAwake(StatsManager __instance)
         {
             if(!Manager.IsEnabled) return;
@@ -25,8 +25,7 @@ namespace USTManager.Patches
                     Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
                 }
             }
-        }
-
+        }*/
         [HarmonyPatch(typeof(AudioSource), "Play", [typeof(double)])]
         [HarmonyPatch(typeof(AudioSource), "Play", [])]
         [HarmonyPrefix]

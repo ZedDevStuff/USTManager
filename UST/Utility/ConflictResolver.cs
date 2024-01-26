@@ -17,7 +17,6 @@ namespace USTManager.Utility
                 IsMerged = true,
                 Levels = new()
             };
-
             foreach(CustomUST ust in USTs)
             {
                 foreach(var level in ust.Levels)
@@ -26,18 +25,17 @@ namespace USTManager.Utility
                     {
                         foreach(CustomUST others in USTs.Where(x => x != ust))
                         {
-                            if(others.Levels.ContainsKey(level.Key))
+                            if(!others.Levels.ContainsKey(level.Key)) continue;
+                            if(merged.Levels.ContainsKey(level.Key)) continue;
+                            List<CustomUST> queryResult = USTs.Where(x => x.Levels.ContainsKey(level.Key)).ToList();
+                            if(queryResult.Count == 1)
                             {
-                                conflicts.GetOrAdd(level.Key, []).Add(ust);
+                                merged.Levels.Add(level.Key, level.Value);
                             }
-                            else
+                            else if(queryResult.Count != 0)
                             {
-                                Dictionary<string, string> parts = [];
-                                foreach(var part in level.Value)
-                                {
-                                    parts.Add(part.Key, Path.Combine(ust.Path, part.Value));
-                                }
-                                merged.Levels.Add(level.Key, parts);
+                                if(conflicts.ContainsKey(level.Key)) continue;
+                                else conflicts.Add(level.Key, queryResult);
                             }
                         }
                     }
@@ -46,16 +44,31 @@ namespace USTManager.Utility
                         foreach(CustomUST other in USTs.Where(x => x != ust))
                         {
                             if(!other.Levels.ContainsKey("global")) continue;
+                            if(!merged.Levels.ContainsKey("global")) merged.Levels.Add("global", []);
 
                             foreach(var entry in level.Value)
                             {
-                                if(other.Levels["global"].ContainsKey(entry.Key))
+                                if(merged.Levels.ContainsKey("global"))
                                 {
-                                    conflicts.GetOrAdd($"global:{entry.Key}", []).Add(ust);
+                                    if(merged.Levels["global"].ContainsKey(entry.Key)) continue;
                                 }
-                                else
+                                var queryResult = USTs.Where(x => 
                                 {
-                                    merged.Levels.GetOrAdd("global", []).Add(entry.Key, Path.Combine(ust.Path, entry.Value));
+                                    if(x.Levels.ContainsKey("global"))
+                                    {
+                                        if(x.Levels["global"].ContainsKey(entry.Key)) return true;
+                                        else return false;
+                                    }
+                                    else return false;
+                                }).ToList();
+                                if(queryResult.Count == 1)
+                                {
+                                    merged.Levels["global"].Add(entry.Key, entry.Value);
+                                }
+                                else if(queryResult.Count != 0)
+                                {
+                                    if(conflicts.ContainsKey($"global:{entry.Key}")) continue;
+                                    else conflicts.Add($"global:{entry.Key}", queryResult);
                                 }
                             }
                         }

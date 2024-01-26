@@ -41,18 +41,18 @@ namespace USTManager.Data
             {
                 Levels = {
                     {
-                        "comments", new() 
+                        "comments", new()
                         {
                             { "Comment", "This is an example UST file. It will get regenerated each time you launch the game with USTManager installed. Omit any unused parts." }
                         }
                     },
                     {
-                        "global", new() 
+                        "global", new()
                         {
                             { "audioClipName", "relative/path/to/audio" }
                         }
                     },
-                    
+
 
                     // Prelude
                     { "0-0", standard },
@@ -66,7 +66,7 @@ namespace USTManager.Data
                     { "1-1", TemplateLevel("clean1", "clean2", "battle") },
                     { "1-2", TemplateLevel("clean0", "clean1", "clean2", "battle0", "battle1", "battle2") },
                     { "1-3", TemplateLevel("clean", "battle", "boss") },
-                    { "1-4", TemplateLevel("intro", "boss") },
+                    { "1-4", TemplateLevel("piano", "intro", "boss") },
                     { "2-1", standard },
                     { "2-2", standard },
                     { "2-3", standard },
@@ -78,7 +78,7 @@ namespace USTManager.Data
                     { "4-1", standard },
                     { "4-2", standard },
                     { "4-3", TemplateLevel("clean1", "clean2", "clean3", "battle1", "battle2", "battle3") },
-                    { "4-4", TemplateLevel("boss") },
+                    { "4-4", TemplateLevel("drone", "bassline", "intro", "boss", "outro") },
                     { "5-1", standard },
                     { "5-2", TemplateLevel("boss1", "boss2", "boss3") },
                     { "5-3", standardTwo },
