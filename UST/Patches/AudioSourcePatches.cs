@@ -5,27 +5,43 @@ using TMPro;
 using UnityEngine.Animations;
 using USTManager.Utility;
 using System;
+using System.Linq;
+using GameConsole.pcon;
 
 namespace USTManager.Patches
 {
     public static class AudioSourcePatches
     {
-        // I don't remember why I made this. it does work but i don't really see much of a point anymore.
-        // I'll keep it here for now just in case i ever need it.
-        /*[HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPrefix]
+        [HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPrefix]
         public static void StatsManagerAwake(StatsManager __instance)
         {
             if(!Manager.IsEnabled) return;
-            var data = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(AudioSource));
-            foreach(AudioSource source in data)
+            var sources = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(GameObject)).Where(x => (x as GameObject).GetComponentInChildren<AudioSource>()).SelectMany(x => (x as GameObject).GetComponentsInChildren<AudioSource>()).ToList();
+            foreach(AudioSource source in sources)
             {
-                if(Manager.IsDebug && source.clip != null && source.playOnAwake && !source.gameObject.activeInHierarchy) Logging.Log($"PlayOnAwake ({source.gameObject.name}): {source.clip.name}");
                 if(source.clip != null)
                 {
+                    if(!source.gameObject.GetComponent<USTTarget>()) source.gameObject.AddComponent<USTTarget>();
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(USTTarget), "Awake")]
+        [HarmonyPrefix]
+        public static void USTTargetAwake(USTTarget __instance)
+        {
+            if(!Manager.IsEnabled) return;
+            AudioSource[] sources = __instance.GetComponentsInChildren<AudioSource>();
+            foreach(AudioSource source in sources)
+            {
+                if(source != null && source.clip != null)
+                {
+                    if(source.clip.name.Contains("punch")) Logging.Log($"Found {source.clip.name} in {SceneHelper.CurrentScene}");
                     Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
                 }
             }
-        }*/
+        }
+
         [HarmonyPatch(typeof(AudioSource), "Play", [typeof(double)])]
         [HarmonyPatch(typeof(AudioSource), "Play", [])]
         [HarmonyPrefix]
@@ -33,16 +49,6 @@ namespace USTManager.Patches
         {
             Manager.HandleAudioSource(SceneHelper.CurrentScene, __instance);
         }
-
-        /*
-        [HarmonyPatch(typeof(AudioSource), "clip", MethodType.Setter), HarmonyPrefix]
-        public static void set_clip(AudioSource __instance, AudioClip value)
-        {
-            if(!Manager.IsEnabled) return;
-            Manager.HandleAudio(SceneHelper.CurrentScene, __instance, value);
-            //Logging.Log(__instance.name + ": set_clip: " + value??"null");
-        }
-        */
 
         [HarmonyPatch(typeof(GameObject), "SetActive"), HarmonyPrefix]
         public static void SetActive(GameObject __instance, bool value)

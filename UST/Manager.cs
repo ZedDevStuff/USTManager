@@ -143,6 +143,10 @@ namespace USTManager
             if(CustomUST.ContainsKey(source.clip.name))
             {
                 source.clip = CustomUST[source.clip.name];
+                if(source.playOnAwake)
+                {
+                    source.Play();
+                }
                 return;
             }
 
