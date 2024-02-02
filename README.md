@@ -17,4 +17,4 @@ Install from thunderstore either manually or using r2modman OR build from source
 
 - UST Editor
 - Sorting in the menu
-- Shuffle
+- Shuffle (i'm not that sure about this one)
