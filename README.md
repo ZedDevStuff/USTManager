@@ -6,12 +6,11 @@ This is the successor to UKMusicReplacement, built from scratch to be easier to 
 
 # Installation
 
-Install from thunderstore either manually or using r2modman OR build from source and manually add the mod to your plugins folder
+Install from [Thunderstore](https://thunderstore.io/c/ultrakill/p/ZedDev/USTManager/) either manually or using r2modman OR build from source and manually add the mod to your plugins folder
 
 # Known issues
 
-- Secret levels don't work yet, but it could be possible that using the global sound replacement, they could work
-- Some sounds can't be replaced. Actively looking for a solution (Patching all sources Awake methods, which Harmony can't do because AudioSource.Awake doesn't exist according to Harmony)
+- Secret levels don't work directly, but using the global sound replacement should work
 
 # Roadmap
 
