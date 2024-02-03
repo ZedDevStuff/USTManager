@@ -1,148 +1,124 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 
 using USTManager.Data;
 
 namespace USTManager.Utility
 {
-    public class ConflictResolver
+    public static class ConflictResolver
     {
-        public static Conflict Merge(params CustomUST[] USTs)
+        public static Conflict Merge(IEnumerable<CustomUST> usts)
         {
-            Dictionary<string, List<CustomUST>> conflicts = new();
-            CustomUST merged = new CustomUST()
+            // Associate level names (or "global:soundeffect" keys) with USTs that override them.
+            // A "conflict" manifests as a list with two or more elements.
+            Dictionary<string, List<CustomUST>> sourceDict = [];
+
+            foreach(var ust in usts)
             {
-                IsMerged = true,
-                Levels = new()
-            };
-            merged.Levels.Add("global", new());
-            foreach(CustomUST ust in USTs)
-            {
-                foreach(var level in ust.Levels)
+                foreach(var (levelName, tracks) in ust.Levels)
                 {
-                    if(level.Key == "global")
+                    if(levelName == "global")
                     {
-                        foreach(CustomUST other in USTs.Where(x => x != ust))
+                        // Global overrides conflict based on individual tracks
+                        foreach(var trackName in tracks.Keys)
                         {
-                            if(other.Levels.ContainsKey("global"))
-                            {
-                                foreach(var entry in level.Value)
-                                {
-                                    if(merged.Levels["global"].ContainsKey(entry.Key)) continue;
-                                    var queryResult = USTs.Where(x => 
-                                    {
-                                        if(x.Levels.ContainsKey("global"))
-                                        {
-                                            if(x.Levels["global"].ContainsKey(entry.Key)) return true;
-                                            else return false;
-                                        }
-                                        else return false;
-                                    }).ToList();
-                                    if(queryResult.Count == 1)
-                                    {
-                                        Logging.Log($"Merged global:{entry.Key} from {ust.Name}");
-                                        merged.Levels["global"].Add(entry.Key, entry.Value);
-                                    }
-                                    else if(queryResult.Count != 0)
-                                    {
-                                        if(conflicts.ContainsKey($"global:{entry.Key}")) continue;
-                                        else conflicts.Add($"global:{entry.Key}", queryResult);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                merged.Levels["global"] = ust.Levels["global"];
-                            }
+                            var globalKey = "global:" + trackName;
+                            sourceDict.GetOrAdd(globalKey, []).Add(ust);
                         }
                     }
                     else
                     {
-                        foreach(CustomUST other in USTs.Where(x => x != ust))
-                        {
-                            if(other.Levels.ContainsKey(level.Key))
-                            {
-                                List<CustomUST> queryResult = USTs.Where(x => x.Levels.ContainsKey(level.Key)).ToList();
-                                if(queryResult.Count == 1)
-                                {
-                                    Logging.Log($"Merged {level.Key} from {ust.Name}");
-                                    merged.Levels.Add(level.Key, level.Value);
-                                }
-                                else if(queryResult.Count != 0)
-                                {
-                                    if(conflicts.ContainsKey(level.Key)) continue;
-                                    else conflicts.Add(level.Key, queryResult);
-                                }
-                            }
-                            else
-                            {
-                                merged.Levels[level.Key] = ust.Levels[level.Key];
-                            }
-                        }
+                        // Level overrides conflict based on the level as a whole
+                        sourceDict.GetOrAdd(levelName, []).Add(ust);
                     }
                 }
             }
+
+            Dictionary<string, List<CustomUST>> conflicts = []; // The overrides with conflicts
+            CustomUST merged = new() { IsMerged = true };       // The overrides without conflicts
+
+            foreach(var (key, sources) in sourceDict)
+            {
+                if(sources.Count != 1)
+                {
+                    conflicts.Add(key, sources);
+                    continue;
+                }
+
+                var ust = sources[0];
+                if(key.StartsWith("global:"))
+                {
+                    var trackName = key.Substring(7);
+                    var track = ust.Levels["global"][trackName];
+                    merged.Levels.GetOrAdd("global", []).Add(trackName, track);
+                }
+                else
+                {
+                    merged.Levels.Add(key, ust.Levels[key]);
+                }
+                Logging.Log($"Merged {key} from {ust.Name}");
+            }
+
             Debug.WriteLine($"{conflicts.Count} Conflicts");
-            Conflict conflict = new Conflict(merged, conflicts);
-            return conflict;
+            return new Conflict(merged, conflicts);
         }
     }
-    public class Conflict
-    {
-        private CustomUST original;
-        public Dictionary<string, List<CustomUST>> Conflicts = new();
-        private Dictionary<string, CustomUST> Merged = new();
-        public int ConflictCount => Conflicts.Count;
-        public int SolvedCount => Merged.Count;
 
-        public Conflict(CustomUST original, Dictionary<string, List<CustomUST>> conflicts)
+    public sealed class Conflict
+    {
+        private readonly CustomUST mergedUST;
+        private readonly Dictionary<string, List<CustomUST>> conflicts;
+        private readonly Dictionary<string, CustomUST> resolutions;
+
+        public IReadOnlyDictionary<string, List<CustomUST>> Conflicts => conflicts;
+
+        public int ConflictCount => conflicts.Count;
+        public int SolvedCount => resolutions.Count;
+
+        public Conflict(CustomUST ust, Dictionary<string, List<CustomUST>> conflictingKeys)
         {
-            this.original = original;
-            Conflicts = conflicts;
+            mergedUST = ust;
+            conflicts = conflictingKeys;
+            resolutions = [];
         }
+
         public void Resolve(string key, CustomUST UST)
         {
-            if(Conflicts.ContainsKey(key))
+            if(conflicts.ContainsKey(key) && conflicts[key].Contains(UST))
             {
-                if(Conflicts[key].Contains(UST))
-                {
-                    Logging.Log($"Resolved conflict for {key} with {UST.Name}");
-                    if(Merged.ContainsKey(key)) Merged[key] = UST;
-                    else Merged.Add(key, UST);
-                }
+                Logging.Log($"Resolved conflict for {key} with {UST.Name}");
+                resolutions[key] = UST;
             }
         }
+
         public bool Validate(out CustomUST UST)
         {
-            if(ConflictCount == 0 || SolvedCount == ConflictCount)
-            {
-                Logging.Log("No conflicts");
-                foreach(var entry in Merged)
-                {
-                    if(entry.Key.FastStartsWith("global:"))
-                    {
-                        if(original.Levels.ContainsKey("global"))
-                        {
-                            foreach(var kv in entry.Value.Levels["global"])
-                            {
-                                original.Levels["global"].Add(kv.Key, kv.Value);
-                            }
-                        }
-                        else original.Levels.Add("global", entry.Value.Levels["global"]);
-                    }
-                    else original.Levels[entry.Key] = entry.Value.Levels[entry.Key];
-                }
-                UST = original;
-                return true;
-            }
-            else
+            if(ConflictCount > SolvedCount)
             {
                 Logging.Log("Conflicts not solved");
                 UST = null;
                 return false;
             }
+
+            Logging.Log("No remaining conflicts");
+
+            foreach(var (key, chosenUST) in resolutions)
+            {
+                if(key.StartsWith("global:"))
+                {
+                    var trackName = key.Substring(7);
+                    var track = chosenUST.Levels["global"][trackName];
+                    mergedUST.Levels.GetOrAdd("global", []).Add(trackName, track);
+                }
+                else
+                {
+                    mergedUST.Levels.Add(key, chosenUST.Levels[key]);
+                }
+            }
+
+            UST = mergedUST;
+            return true;
         }
     }
 }
