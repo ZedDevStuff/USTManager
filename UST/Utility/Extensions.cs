@@ -4,14 +4,24 @@ namespace USTManager.Utility
 {
     public static class Extensions
     {
-        public static bool FastStartsWith(this string str, string value)
+        public static V GetOrAdd<K, V>(this Dictionary<K, V> dict, K key, V toAdd)
         {
-            if(str.Length < value.Length) return false;
-            for(int i = 0; i < value.Length; i++)
+            if(dict.TryGetValue(key, out V existing))
             {
-                if(str[i] != value[i]) return false;
+                return existing;
             }
-            return true;
+            else
+            {
+                dict.Add(key, toAdd);
+                return toAdd;
+            }
+        }
+
+        // Polyfill for something that .NET Core has had since 2017
+        public static void Deconstruct<K, V>(this KeyValuePair<K, V> pair, out K key, out V val)
+        {
+            key = pair.Key;
+            val = pair.Value;
         }
     }
 }
