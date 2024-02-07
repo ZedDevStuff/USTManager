@@ -36,7 +36,6 @@ namespace USTManager.Patches
             {
                 if(source != null && source.clip != null)
                 {
-                    if(source.clip.name.Contains("punch")) Logging.Log($"Found {source.clip.name} in {SceneHelper.CurrentScene}");
                     Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
                 }
             }
