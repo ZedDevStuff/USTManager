@@ -63,8 +63,29 @@ namespace USTManager.Commands
         }
         public void Execute(GameConsole.Console con, string[] args)
         {
-            Manager.IsDebug = !Manager.IsDebug;
-            Logging.Log("UST Debug is now " + Manager.IsDebug);
+            if(args.Length > 0)
+            {
+                if(bool.TryParse(args[0].ToLower(), out bool result))
+                {
+                    if(args.Length > 1)
+                    {
+                        if(args[1].ToLower() == "extended")
+                        {
+                            Manager.IsDebug = result;
+                            Manager.IsExtendedDebug = result ? true : false;
+                            Logging.Log("UST Debug is now " + (Manager.IsDebug ? "enabled" : "disabled") + (Manager.IsExtendedDebug ? " in extended mode" : ""));
+                        }
+                    }
+                    else
+                    {
+                        Manager.IsDebug = result;
+                        Manager.IsExtendedDebug = result ? false : Manager.IsExtendedDebug;
+                        Logging.Log("UST Debug is now " + (Manager.IsDebug ? "enabled" : "disabled")); 
+                    }
+                }
+                else Logging.Log($"Incorrect argument \"{args[0]}\"");
+            }
+            else Logging.Log($"Not enough arguments");
         }
     }
 }

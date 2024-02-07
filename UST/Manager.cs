@@ -13,6 +13,7 @@ namespace USTManager
     {
         public static bool IsEnabled = true;
         public static bool IsDebug = false;
+        public static bool IsExtendedDebug = false;
         public static float DebugLifetime = 1f;
 
         private static Dictionary<string, AudioClip> CustomUST = new();

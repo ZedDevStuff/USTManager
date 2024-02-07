@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace USTManager
 {
-    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.4.3")]
+    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.4.4")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir;
@@ -84,7 +84,7 @@ namespace USTManager
 
             AudioSource[] sources = FindObjectsOfType<AudioSource>()
                 .Where(s => s.isPlaying)
-                .Where(s => s.spatialBlend < 1.0)
+                .Where(s => Manager.IsExtendedDebug ? true : s.spatialBlend < 1.0)
                 //.OrderByDescending(s => s.clip.length)
                 .ToArray();
 

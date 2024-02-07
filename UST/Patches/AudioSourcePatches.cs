@@ -26,7 +26,8 @@ namespace USTManager.Patches
             }
         }
 
-        [HarmonyPatch(typeof(USTTarget), "Awake")]
+        // I have no idea if that is the cracking issue cause so it'll remain commented out until i find out 
+        /*[HarmonyPatch(typeof(USTTarget), "Awake")]
         [HarmonyPrefix]
         public static void USTTargetAwake(USTTarget __instance)
         {
@@ -39,7 +40,7 @@ namespace USTManager.Patches
                     Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
                 }
             }
-        }
+        }*/
 
         [HarmonyPatch(typeof(AudioSource), "Play", [typeof(double)])]
         [HarmonyPatch(typeof(AudioSource), "Play", [])]
