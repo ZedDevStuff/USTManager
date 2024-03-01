@@ -13,18 +13,18 @@ namespace USTManager.Patches
 {
     public static class AudioSourcePatches
     {
-        [HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPrefix]
+        [HarmonyPatch(typeof(StatsManager), "Awake"), HarmonyPostfix]
         public static void StatsManagerAwake(StatsManager __instance)
         {
             if(!Manager.IsEnabled) return;
-            List<AudioClip> clips = UnityEngine.Resources.FindObjectsOfTypeAll<AudioClip>().ToList();
-            clips.ForEach(x => Extension.Registry.BrandClip(x));
+            /*List<AudioClip> clips = UnityEngine.Resources.FindObjectsOfTypeAll<AudioClip>().ToList();
+            clips.ForEach(x => Extension.Registry.BrandClip(x));*/
             List<AudioSource> sources = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(GameObject)).Where(x => (x as GameObject).GetComponentInChildren<AudioSource>()).SelectMany(x => (x as GameObject).GetComponentsInChildren<AudioSource>()).ToList();
             foreach(AudioSource source in sources)
             {
                 if(source.clip != null)
                 {
-                    if(!source.gameObject.GetComponent<USTTarget>()) source.gameObject.AddComponent<USTTarget>();
+                    if(source.gameObject.GetComponent<USTTarget>() != null) source.gameObject.AddComponent<USTTarget>();
                 }
             }
         }

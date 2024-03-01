@@ -7,6 +7,7 @@ using USTManager.Data;
 using USTManager;
 using System.Linq;
 using USTManager.Utility;
+using System.IO;
 
 public class USTSelectionScreen : MonoBehaviour
 {
@@ -67,6 +68,8 @@ public class USTSelectionScreen : MonoBehaviour
                         CurrentUST = SelectedEntries[0].UST;
                         PersistentEntries.Clear();
                         SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Path));
+                        if(File.Exists(Plugin.LastUSTs)) File.Delete(Plugin.LastUSTs);
+                        Manager.SaveUST();
                     }
                     else if(SelectedEntries.Count > 1)
                     {
@@ -78,6 +81,8 @@ public class USTSelectionScreen : MonoBehaviour
                             PersistentEntries.Clear();
                             SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Path));
                             SelectedEntries.Clear();
+                            if(File.Exists(Plugin.LastUSTs)) File.Delete(Plugin.LastUSTs);
+                            Manager.SaveUST();
                         }
                         else
                         {
@@ -92,6 +97,7 @@ public class USTSelectionScreen : MonoBehaviour
                     Manager.UnloadUST();
                     PersistentEntries.Clear();
                     SelectedEntries.Clear();
+                    if(File.Exists(Plugin.LastUSTs)) File.Delete(Plugin.LastUSTs);
                 }
                 gameObject.SetActive(false);
             });
@@ -111,6 +117,8 @@ public class USTSelectionScreen : MonoBehaviour
             SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Path));
             SelectedEntries.Clear();
             gameObject.SetActive(false);
+            if(File.Exists(Plugin.LastUSTs)) File.Delete(Plugin.LastUSTs);
+            Manager.SaveUST();
             return true;
         }
         else return false;

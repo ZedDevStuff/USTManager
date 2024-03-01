@@ -20,25 +20,24 @@ namespace USTManager
     [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.5.0")]
     public class Plugin : BaseUnityPlugin
     {
-        public static string UKPath, USTDir;
+        public static string UKPath, USTDir, LastUSTs;
         public static GameObject MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab, ConflictEntryPrefab, ConflictResolutionScreenPrefab, ToastPrefab;
         private void Awake()
         {
             instance = this;
-            Application.quitting += () => Manager.SaveUST();
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             Harmony.CreateAndPatchAll(typeof(AudioSourcePatches));
             Harmony.CreateAndPatchAll(typeof(MainMenuPatches));
             UKPath = new DirectoryInfo(Application.dataPath).Parent.FullName;
-            string lastUSTs = Path.Combine(UKPath, "USTs","lastUSTs.json");
-            if(File.Exists(lastUSTs))
+            LastUSTs = Path.Combine(UKPath, "USTs","lastUSTs.json");
+            if(File.Exists(LastUSTs))
             {
                 try
                 {
-                    Dictionary<string, object>? data = JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(lastUSTs));
+                    Manager.USTSave? data = JsonConvert.DeserializeObject<Manager.USTSave>(File.ReadAllText(LastUSTs));
                     if(data != null)
                     {
-                        USTSelectionScreen.InternalConfirm((data["Selected"] as JArray).ToObject<List<string>>(), (data["UST"] as JObject).ToObject<CustomUST>());
+                        USTSelectionScreen.InternalConfirm(data.Selected, data.UST);
                     }
                 }
                 catch(System.Exception e)
@@ -111,6 +110,7 @@ namespace USTManager
                 using var _ = new GUILayout.VerticalScope();
                 foreach(AudioSource s in sources)
                 {
+                    if(s is null) continue;
                     action(s);
                 }
             }
@@ -121,11 +121,11 @@ namespace USTManager
             using var _ = new GUILayout.HorizontalScope();
 
             style.normal.textColor = Color.green;
-            DrawColumn(s => GUILayout.Label(s.name));
+            DrawColumn(s => GUILayout.Label(s.name ?? "null"));
 
             GUILayout.Space(20);
             style.normal.textColor = Color.white;
-            DrawColumn(s => GUILayout.Label(s.clip.name));
+            DrawColumn(s => GUILayout.Label(s.clip ? s.clip.name ?? "null" : "null"));
 
             GUILayout.Space(20);
             style.normal.textColor = Color.red;
@@ -133,7 +133,7 @@ namespace USTManager
             {
                 using var _ = new GUILayout.HorizontalScope();
                 GUILayout.Label(s.volume * 100 + "%");
-                GUILayout.HorizontalSlider(s.time, 0, s.clip.length, GUILayout.Width(150));
+                GUILayout.HorizontalSlider(s.time, 0, s.clip ? s.clip.length : 0, GUILayout.Width(150));
             });
         }
     }

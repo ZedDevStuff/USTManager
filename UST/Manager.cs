@@ -134,15 +134,15 @@ namespace USTManager
         {
             if(USTSelectionScreen.PersistentEntries.Count > 0 && USTSelectionScreen.CurrentUST != null)
             {
-                Dictionary<string, object> data = new();
-                data.Add("Selected", USTSelectionScreen.PersistentEntries);
-                if(USTSelectionScreen.CurrentUST != null)
+                USTSave data = new()
                 {
-                    if(USTSelectionScreen.CurrentUST != null) data.Add("UST", USTSelectionScreen.CurrentUST);
-                }
-                File.WriteAllText(Path.Combine(Plugin.UKPath, "USTs","lastUSTs.json"), JsonConvert.SerializeObject(data, Formatting.Indented).Replace(@"\\","/"));
+                    Selected = USTSelectionScreen.PersistentEntries,
+                    UST = USTSelectionScreen.CurrentUST
+                };
+                File.WriteAllText(Plugin.LastUSTs, JsonConvert.SerializeObject(data, Formatting.Indented));//.Replace(@"\\","/"));
             }
         }
+        public class USTSave { public List<string> Selected; public CustomUST UST; }
         public static void HandleAudioSource(string level, AudioSource source)
         {
             if(!IsEnabled) return;
