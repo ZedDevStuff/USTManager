@@ -16,6 +16,15 @@ namespace USTManager.Utility
                 return toAdd;
             }
         }
+        public static bool FastStartsWith(this string str, string target)
+        {
+            if(str.Length < target.Length) return false;
+            for(int i = 0; i < str.Length;i++)
+            {
+                if(str[i] != target[i]) return false;
+            }
+            return true;
+        }
 
         // Polyfill for something that .NET Core has had since 2017
         public static void Deconstruct<K, V>(this KeyValuePair<K, V> pair, out K key, out V val)

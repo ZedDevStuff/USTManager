@@ -7,6 +7,7 @@ using USTManager.Utility;
 using System;
 using System.Linq;
 using GameConsole.pcon;
+using System.Collections.Generic;
 
 namespace USTManager.Patches
 {
@@ -16,7 +17,9 @@ namespace USTManager.Patches
         public static void StatsManagerAwake(StatsManager __instance)
         {
             if(!Manager.IsEnabled) return;
-            var sources = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(GameObject)).Where(x => (x as GameObject).GetComponentInChildren<AudioSource>()).SelectMany(x => (x as GameObject).GetComponentsInChildren<AudioSource>()).ToList();
+            List<AudioClip> clips = UnityEngine.Resources.FindObjectsOfTypeAll<AudioClip>().ToList();
+            clips.ForEach(x => Extension.Registry.BrandClip(x));
+            List<AudioSource> sources = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(GameObject)).Where(x => (x as GameObject).GetComponentInChildren<AudioSource>()).SelectMany(x => (x as GameObject).GetComponentsInChildren<AudioSource>()).ToList();
             foreach(AudioSource source in sources)
             {
                 if(source.clip != null)

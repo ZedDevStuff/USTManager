@@ -11,10 +11,8 @@ namespace USTManager.Patches
             {
                 if(source.playOnAwake)
                 {
-                    source.playOnAwake = false;
                     source.Stop();
                     Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
-                    source.playOnAwake = true;
                     source.Play();
                 } 
                 else
@@ -29,10 +27,8 @@ namespace USTManager.Patches
             {
                 if(source.playOnAwake)
                 {
-                    source.playOnAwake = false;
                     source.Stop();
                     Manager.HandleAudioSource(SceneHelper.CurrentScene, source);
-                    source.playOnAwake = true;
                     source.Play();
                 } 
                 else

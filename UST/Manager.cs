@@ -32,7 +32,6 @@ namespace USTManager
                     if(ust == null) continue;
 
                     ust.Path = file.Directory.FullName;
-                    ust.Hash = Hash128.Compute(ust.Path).ToString();
                     foreach(Dictionary<string, string> level in ust.Levels.Values)
                     {
                         foreach(string track in level.Keys.ToArray())
@@ -75,7 +74,7 @@ namespace USTManager
         {
             CustomUST.Clear();
         }
-        public static void LoadUST(CustomUST ust)
+        public static void LoadUST(CustomUST ust, bool fromSaved = false)
         {
             UnloadUST();
             if(ust == null) return;
@@ -87,8 +86,8 @@ namespace USTManager
                 {
                     string trackPart = desc.Key;
                     string trackPath = desc.Value;
-
-                    if(!ust.IsMerged && !File.Exists(Path.Combine(path, trackPath))) continue;
+                    if(fromSaved && !File.Exists(trackPath)) continue;
+                    else if(!fromSaved && !ust.IsMerged && !File.Exists(Path.Combine(path, trackPath))) continue;
                     var d = clips.Where(x => x.Value.name == "[UST] " + Path.GetFileNameWithoutExtension(trackPath));
                     if(d.Count() > 0)
                     {
@@ -129,6 +128,19 @@ namespace USTManager
             {
                 CustomUST.Clear();
                 CustomUST = clips;
+            }
+        }
+        public static void SaveUST()
+        {
+            if(USTSelectionScreen.PersistentEntries.Count > 0 && USTSelectionScreen.CurrentUST != null)
+            {
+                Dictionary<string, object> data = new();
+                data.Add("Selected", USTSelectionScreen.PersistentEntries);
+                if(USTSelectionScreen.CurrentUST != null)
+                {
+                    if(USTSelectionScreen.CurrentUST != null) data.Add("UST", USTSelectionScreen.CurrentUST);
+                }
+                File.WriteAllText(Path.Combine(Plugin.UKPath, "USTs","lastUSTs.json"), JsonConvert.SerializeObject(data, Formatting.Indented).Replace(@"\\","/"));
             }
         }
         public static void HandleAudioSource(string level, AudioSource source)

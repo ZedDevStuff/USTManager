@@ -11,9 +11,9 @@ using USTManager.Utility;
 public class USTSelectionScreen : MonoBehaviour
 {
     private static List<RectTransform> Entries = new List<RectTransform>();
-    private ScrollRect ScrollRect;
-    private GameObject EntryPrefab;
-    private Button CreateButton, OpenFolderButton, RefreshButton, ExitButton, ConfirmButton;
+    private ScrollRect? ScrollRect;
+    private GameObject? EntryPrefab;
+    private Button? CreateButton, OpenFolderButton, RefreshButton, ExitButton, ConfirmButton;
     public static USTSelectionScreen Instance { get; private set; }
 
     private void Awake()
@@ -66,7 +66,7 @@ public class USTSelectionScreen : MonoBehaviour
                         Manager.LoadUST(SelectedEntries[0].UST);
                         CurrentUST = SelectedEntries[0].UST;
                         PersistentEntries.Clear();
-                        SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Hash));
+                        SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Path));
                     }
                     else if(SelectedEntries.Count > 1)
                     {
@@ -76,7 +76,7 @@ public class USTSelectionScreen : MonoBehaviour
                             Manager.LoadUST(ust);
                             CurrentUST = ust;
                             PersistentEntries.Clear();
-                            SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Hash));
+                            SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Path));
                             SelectedEntries.Clear();
                         }
                         else
@@ -98,23 +98,36 @@ public class USTSelectionScreen : MonoBehaviour
         }
         ScrollRect = GetComponentInChildren<ScrollRect>();
     }
+    public static Conflict? CurrentConflict;
     public bool Confirm(Conflict conflict)
     {
+        CurrentConflict = null;
         if(conflict.Validate(out CustomUST ust))
         {
             Manager.LoadUST(ust);
+            CurrentConflict = conflict;
             CurrentUST = ust;
             PersistentEntries.Clear();
-            SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Hash));
+            SelectedEntries.ForEach(x => PersistentEntries.Add(x.UST.Path));
             SelectedEntries.Clear();
             gameObject.SetActive(false);
             return true;
         }
         else return false;
     }
+    public static void InternalConfirm(List<string>? entries, CustomUST? ust)
+    {
+        if(entries != null && ust != null)
+        {
+            Manager.LoadUST(ust, true);
+            CurrentUST = ust;
+            PersistentEntries.Clear();
+            PersistentEntries = entries;
+        }
+    }
     public List<USTEntry> SelectedEntries = new();
     public static List<string> PersistentEntries = new();
-    public static CustomUST CurrentUST { get; private set;}
+    public static CustomUST? CurrentUST { get; private set;}
     
     void OnEnable()
     {
@@ -162,8 +175,9 @@ public class USTSelectionScreen : MonoBehaviour
             ustEntry.SetData(entry);
             if(CurrentUST != null)
             {
-                if(PersistentEntries.Contains(entry.Hash))
+                if(PersistentEntries.Contains(entry.Path))
                 {
+                    Debug.Log("Selected");
                     ustEntry.Select();
                 }
             }

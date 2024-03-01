@@ -6,15 +6,18 @@ using GameConsole;
 using USTManager.Data;
 using USTManager.Patches;
 using USTManager.Commands;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
 using USTManager.Misc;
 using USTManager.Utility;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace USTManager
 {
-    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.4.4")]
+    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.5.0")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir;
@@ -22,15 +25,30 @@ namespace USTManager
         private void Awake()
         {
             instance = this;
+            Application.quitting += () => Manager.SaveUST();
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             Harmony.CreateAndPatchAll(typeof(AudioSourcePatches));
             Harmony.CreateAndPatchAll(typeof(MainMenuPatches));
-
             UKPath = new DirectoryInfo(Application.dataPath).Parent.FullName;
+            string lastUSTs = Path.Combine(UKPath, "USTs","lastUSTs.json");
+            if(File.Exists(lastUSTs))
+            {
+                try
+                {
+                    Dictionary<string, object>? data = JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(lastUSTs));
+                    if(data != null)
+                    {
+                        USTSelectionScreen.InternalConfirm((data["Selected"] as JArray).ToObject<List<string>>(), (data["UST"] as JObject).ToObject<CustomUST>());
+                    }
+                }
+                catch(System.Exception e)
+                {
+                    Debug.LogError(e);
+                }
+            }
             DirectoryInfo ustDir = new(Path.Combine(UKPath, "USTs"));
             USTDir = ustDir.FullName;
             if(!ustDir.Exists) ustDir.Create();
-
 
             AssetBundle bundle = AssetBundle.LoadFromMemory(Resources.Resource1.ust);
             MenuEntryPrefab = bundle.LoadAsset<GameObject>("MenuEntry");

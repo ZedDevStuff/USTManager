@@ -15,14 +15,15 @@ namespace USTManager.Data
         public string Author { get; private set; }
         [JsonProperty(Order = 2)]
         public string Description { get; private set; }
-        [JsonProperty("levels", Order = 3)]
+        [JsonIgnore]//[JsonProperty(Order = 3)]
+        public string Format { get; private set; }
+        [JsonProperty("levels", Order = 4)]
         public Dictionary<string, Dictionary<string, string>> Levels = [];
 
         [JsonIgnore] public string Path;
         [JsonIgnore] public bool IsMerged = false;
         [JsonIgnore] public Color UserColor = Color.white;
-        [JsonIgnore] public Sprite Icon = null;
-        [JsonIgnore] public string Hash = "";
+        [JsonIgnore] public Sprite? Icon = null;
 
         public CustomUST() { }
         public CustomUST(string name, string author, string description)
@@ -30,6 +31,13 @@ namespace USTManager.Data
             Name = name;
             Author = author;
             Description = description;
+        }
+        public CustomUST(string name, string author, string description, string format)
+        {
+            Name = name;
+            Author = author;
+            Description = description;
+            Format = format;
         }
 
         public static string GetTemplateJson()
@@ -39,6 +47,7 @@ namespace USTManager.Data
 
             CustomUST ust = new("Name", "Author", "Description")
             {
+                Format = "USTManager",
                 Levels = {
                     {
                         "comments", new()

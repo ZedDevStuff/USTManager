@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using Newtonsoft.Json;
 using USTManager.Data;
 
 namespace USTManager.Utility
@@ -67,10 +67,21 @@ namespace USTManager.Utility
 
     public sealed class Conflict
     {
+        [JsonProperty("UST")]
         private readonly CustomUST mergedUST;
+        [JsonProperty("Conflicts")]
         private readonly Dictionary<string, List<CustomUST>> conflicts;
+        [JsonProperty("Resolutions")]
         private readonly Dictionary<string, CustomUST> resolutions;
+        [JsonProperty("Validated")]
+        public bool Validated = false;
 
+        [JsonConstructor]
+        private Conflict()
+        {
+
+        }
+        [JsonIgnore]
         public IReadOnlyDictionary<string, List<CustomUST>> Conflicts => conflicts;
 
         public int ConflictCount => conflicts.Count;
@@ -94,6 +105,11 @@ namespace USTManager.Utility
 
         public bool Validate(out CustomUST UST)
         {
+            if(Validated)
+            {
+                UST = mergedUST;
+                return true;
+            }
             if(ConflictCount > SolvedCount)
             {
                 Logging.Log("Conflicts not solved");
@@ -116,9 +132,18 @@ namespace USTManager.Utility
                     mergedUST.Levels.Add(key, chosenUST.Levels[key]);
                 }
             }
-
+            Validated = true;
             UST = mergedUST;
             return true;
+        }
+        /// <summary>
+        /// Will fail and return null if the conflict isn't resolved
+        /// </summary>
+        /// <returns></returns>
+        public CustomUST? GetMerged()
+        {
+            if(Validated) return mergedUST;
+            return null;
         }
     }
 }
