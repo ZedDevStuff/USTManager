@@ -20,7 +20,8 @@ namespace USTManager
         public static List<CustomUST> AllUSTs = new();
         public static void CheckUSTs()
         {
-            FileInfo[] files = Directory.GetFiles(Path.Combine(Plugin.UKPath, "USTs"), "*.ust", SearchOption.AllDirectories).Select(x => new FileInfo(x)).ToArray();
+            IEnumerable<FileInfo> files = Directory.GetFiles(Path.Combine(Plugin.UKPath, "USTs"), "*.ust", SearchOption.AllDirectories).Select(x => new FileInfo(x));
+            files = files.Concat(Directory.GetFiles(Path.Combine(Plugin.UKPath, "USTs"), "*.ust.json", SearchOption.AllDirectories).Select(x => new FileInfo(x)));
             AllUSTs.Clear();
             LegacyUSTConverter.legacyUSTs.Clear();
             foreach(FileInfo file in files)
