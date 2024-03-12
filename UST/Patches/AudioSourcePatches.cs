@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using GameConsole.pcon;
 using System.Collections.Generic;
+using USTManager.Preprocessor;
 
 namespace USTManager.Patches
 {
@@ -20,6 +21,10 @@ namespace USTManager.Patches
             /*List<AudioClip> clips = UnityEngine.Resources.FindObjectsOfTypeAll<AudioClip>().ToList();
             clips.ForEach(x => Extension.Registry.BrandClip(x));*/
             List<AudioSource> sources = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(GameObject)).Where(x => (x as GameObject).GetComponentInChildren<AudioSource>()).SelectMany(x => (x as GameObject).GetComponentsInChildren<AudioSource>()).ToList();
+            foreach(BasePreprocessor preprocessor in Registry.Preprocessors)
+            {
+                preprocessor.Apply(sources);
+            }
             foreach(AudioSource source in sources)
             {
                 if(source.clip != null)

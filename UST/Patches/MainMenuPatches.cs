@@ -13,6 +13,7 @@ namespace USTManager.Patches
         public static void SetActive(HudOpenEffect __instance)
         {
             if(__instance.name != "Audio Options") return;
+            Logging.Log(__instance.transform.GetPath());
             if(__instance.transform.GetChild(1).transform.Find("MenuEntry(Clone)") == null)
             {
                 RectTransform parent = __instance.transform.GetChild(1).GetComponent<RectTransform>();

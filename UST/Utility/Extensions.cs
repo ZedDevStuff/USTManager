@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace USTManager.Utility
 {
@@ -31,6 +34,20 @@ namespace USTManager.Utility
         {
             key = pair.Key;
             val = pair.Value;
+        }
+
+        public static string GetPath(this Transform transform)
+        {
+            List<string> path = new();
+            Transform current = transform; 
+            do
+            {
+                path.Add(current.name);
+                current = current.parent;
+            }
+            while(current != null);
+            path.Reverse();
+            return path.Aggregate((a,b) => $"{a}/{b}");
         }
     }
 }
