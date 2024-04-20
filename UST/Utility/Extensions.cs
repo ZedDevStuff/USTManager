@@ -21,10 +21,13 @@ namespace USTManager.Utility
         }
         public static bool FastStartsWith(this string str, string target)
         {
-            if(str.Length < target.Length) return false;
-            for(int i = 0; i < str.Length;i++)
+            if (str.Length < target.Length) return false;
+            else
             {
-                if(str[i] != target[i]) return false;
+                for (int i = 0; i < target.Length; i++)
+                {
+                    if (str[i] != target[i]) return false;
+                }
             }
             return true;
         }

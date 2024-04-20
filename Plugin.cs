@@ -17,7 +17,7 @@ using Newtonsoft.Json.Linq;
 
 namespace USTManager
 {
-    [BepInPlugin("zed.uk.ustmanager", "USTManager", "1.5.0")]
+    [BepInPlugin("com.zeddevstuff.ustmanager", "USTManager", "1.5.0")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir, LastUSTs;
@@ -51,8 +51,10 @@ namespace USTManager
 
             AssetBundle bundle = AssetBundle.LoadFromMemory(Resources.Resource1.ust);
             MenuEntryPrefab = bundle.LoadAsset<GameObject>("MenuEntry");
+            Debug.Log("MenuEntryprefab " + (MenuEntryPrefab == null ? "null" : "not null"));
             MenuEntryPrefab.AddComponent<HudOpenEffect>();
             SelectionScreenEntryPrefab = bundle.LoadAsset<GameObject>("USTEntry");
+            Debug.Log("SelectionScreenEntryPrefab " + (SelectionScreenEntryPrefab == null ? "null" : "not null"));
             USTEntry entry = SelectionScreenEntryPrefab.AddComponent<USTEntry>();
             entry.Image = SelectionScreenEntryPrefab.transform.GetChild(0).GetComponent<Image>();
             entry.Name = SelectionScreenEntryPrefab.transform.GetChild(1).GetComponent<TMP_Text>();
@@ -60,22 +62,25 @@ namespace USTManager
             entry.IconButton = SelectionScreenEntryPrefab.transform.GetChild(0).GetComponent<Button>();
             entry.Status = SelectionScreenEntryPrefab.transform.GetChild(0).GetChild(0).GetComponent<TMP_Text>();
             SelectionScreenPrefab = bundle.LoadAsset<GameObject>("OptionMenu");
+            Debug.Log("SelectionScreenPrefab " + (SelectionScreenPrefab == null ? "null" : "not null"));
             SelectionScreenPrefab.AddComponent<USTSelectionScreen>();
             ConflictEntryPrefab = bundle.LoadAsset<GameObject>("Conflict");
+            Debug.Log("ConflictEntryPrefab " + (ConflictEntryPrefab == null ? "null" : "not null"));
             ConflictResolutionScreenPrefab = bundle.LoadAsset<GameObject>("ConflictResolutionScreen");
-            ToastPrefab = bundle.LoadAsset<GameObject>("Popup");
-            ToastPrefab.AddComponent<Toast>();
+            ConflictResolutionScreenPrefab.AddComponent<ConflictResolutionScreen>();
+            //ToastPrefab = bundle.LoadAsset<GameObject>("Popup");
+            //ToastPrefab.AddComponent<Toast>();
             Console.Instance.RegisterCommand(new USTToggle());
             Console.Instance.RegisterCommand(new USTDebug());
             CreateTemplate();
-
+            Debug.Log("USTManager loaded successfully!");
         }
         public static USTSelectionScreen Screen;
         public static void OpenMenu(Transform transform)
         {
             if(Screen == null)
             {
-                Screen = GameObject.Instantiate(SelectionScreenPrefab, transform).GetComponent<USTSelectionScreen>();
+                Screen = Instantiate(SelectionScreenPrefab, transform).GetComponent<USTSelectionScreen>();
                 Screen.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
             }
             else

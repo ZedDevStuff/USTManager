@@ -14,11 +14,11 @@ namespace USTManager.Patches
         {
             if(__instance.name != "Audio Options") return;
             Logging.Log(__instance.transform.GetPath());
-            if(__instance.transform.GetChild(1).transform.Find("MenuEntry(Clone)") == null)
+            if(__instance.transform.GetChild(0).transform.Find("MenuEntry(Clone)") == null)
             {
-                RectTransform parent = __instance.transform.GetChild(1).GetComponent<RectTransform>();
+                RectTransform parent = __instance.transform.GetChild(0).GetComponent<RectTransform>();
                 GameObject obj = GameObject.Instantiate(Plugin.MenuEntryPrefab, parent);
-                RectTransform button = obj.transform.GetChild(1).GetComponent<RectTransform>();
+                RectTransform button = obj.transform.GetChild(0).GetComponent<RectTransform>();
                 button.offsetMax = new Vector2(380, 20);
                 button.offsetMin = new Vector2(220, -20);
                 Button btn = button.GetComponent<Button>();

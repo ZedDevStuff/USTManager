@@ -4,7 +4,7 @@ namespace USTManager.Preprocessor
 {
     public static class Registry
     {
-        internal static List<BasePreprocessor> Preprocessors;
+        internal static List<BasePreprocessor> Preprocessors = new();
         /// <summary>
         /// Returns true if the preprocessor was registered
         /// </summary>

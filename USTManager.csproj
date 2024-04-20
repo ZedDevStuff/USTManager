@@ -39,6 +39,10 @@
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\ULTRAKILL_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.Addressables">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\ULTRAKILL_Data\Managed\Unity.Addressables.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   
   <ItemGroup>

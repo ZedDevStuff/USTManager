@@ -87,7 +87,7 @@ public class USTSelectionScreen : MonoBehaviour
                         else
                         {
                             GameObject screen = Instantiate(Plugin.ConflictResolutionScreenPrefab, transform);
-                            screen.AddComponent<ConflictResolutionScreen>().Setup(conflict);
+                            screen.GetComponent<ConflictResolutionScreen>().Setup(conflict);
                             return;
                         }
                     }
