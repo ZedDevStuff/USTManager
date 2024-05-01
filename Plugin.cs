@@ -17,7 +17,7 @@ using Newtonsoft.Json.Linq;
 
 namespace USTManager
 {
-    [BepInPlugin("com.zeddevstuff.ustmanager", "USTManager", "1.5.0")]
+    [BepInPlugin("com.zeddevstuff.ustmanager", "USTManager", "1.5.1")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir, LastUSTs;
@@ -25,7 +25,6 @@ namespace USTManager
         private void Awake()
         {
             instance = this;
-            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             Harmony.CreateAndPatchAll(typeof(AudioSourcePatches));
             Harmony.CreateAndPatchAll(typeof(MainMenuPatches));
             UKPath = new DirectoryInfo(Application.dataPath).Parent.FullName;
@@ -63,17 +62,20 @@ namespace USTManager
             entry.Status = SelectionScreenEntryPrefab.transform.GetChild(0).GetChild(0).GetComponent<TMP_Text>();
             SelectionScreenPrefab = bundle.LoadAsset<GameObject>("OptionMenu");
             Debug.Log("SelectionScreenPrefab " + (SelectionScreenPrefab == null ? "null" : "not null"));
-            SelectionScreenPrefab.AddComponent<USTSelectionScreen>();
+            SelectionScreenPrefab?.AddComponent<USTSelectionScreen>();
             ConflictEntryPrefab = bundle.LoadAsset<GameObject>("Conflict");
             Debug.Log("ConflictEntryPrefab " + (ConflictEntryPrefab == null ? "null" : "not null"));
             ConflictResolutionScreenPrefab = bundle.LoadAsset<GameObject>("ConflictResolutionScreen");
-            ConflictResolutionScreenPrefab.AddComponent<ConflictResolutionScreen>();
+            Debug.Log("ConflictResolutionScreenPrefab " + (ConflictResolutionScreenPrefab == null ? "null" : "not null"));
+            ConflictResolutionScreenPrefab?.AddComponent<ConflictResolutionScreen>();
             //ToastPrefab = bundle.LoadAsset<GameObject>("Popup");
             //ToastPrefab.AddComponent<Toast>();
-            Console.Instance.RegisterCommand(new USTToggle());
-            Console.Instance.RegisterCommand(new USTDebug());
+
+            //Console.Instance.RegisterCommand(new USTToggle());
+            //Console.Instance.RegisterCommand(new USTDebug());
+
             CreateTemplate();
-            Debug.Log("USTManager loaded successfully!");
+            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
         public static USTSelectionScreen Screen;
         public static void OpenMenu(Transform transform)
