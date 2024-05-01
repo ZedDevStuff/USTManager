@@ -14,6 +14,7 @@ using USTManager.Utility;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace USTManager
 {
@@ -71,8 +72,12 @@ namespace USTManager
             //ToastPrefab = bundle.LoadAsset<GameObject>("Popup");
             //ToastPrefab.AddComponent<Toast>();
 
-            //Console.Instance.RegisterCommand(new USTToggle());
-            //Console.Instance.RegisterCommand(new USTDebug());
+            Task.Run(async () => {
+                await Task.Delay(1000);
+                Console.Instance?.RegisterCommand(new USTToggle());
+                Console.Instance?.RegisterCommand(new USTDebug());
+            });
+            
 
             CreateTemplate();
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
