@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace USTManager
 {
-    [BepInPlugin("com.zeddevstuff.ustmanager", "USTManager", "1.5.1")]
+    [BepInPlugin("com.zeddevstuff.ustmanager", "USTManager", "1.5.2")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir, LastUSTs;
@@ -71,14 +71,7 @@ namespace USTManager
             ConflictResolutionScreenPrefab?.AddComponent<ConflictResolutionScreen>();
             //ToastPrefab = bundle.LoadAsset<GameObject>("Popup");
             //ToastPrefab.AddComponent<Toast>();
-
-            Task.Run(async () => {
-                await Task.Delay(1000);
-                Console.Instance?.RegisterCommand(new USTToggle());
-                Console.Instance?.RegisterCommand(new USTDebug());
-            });
             
-
             CreateTemplate();
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }

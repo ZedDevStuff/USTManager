@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using ULTRAKILL;
 using USTManager.Utility;
 using System.Linq;
+using GameConsole;
+using USTManager.Commands;
 
 namespace USTManager.Patches
 {
@@ -26,5 +28,16 @@ namespace USTManager.Patches
                 Logging.Log("Added USTManager button to main menu");
             }
         }
+        [HarmonyPatch(typeof(Console), "Awake"), HarmonyPostfix]
+        public static void Awake(Console __instance)
+        {
+            if(__instance != null && __instance == Console.Instance)
+            {
+                if(__instance.registeredCommandTypes.Contains(typeof(USTDebug))) return;
+                __instance.RegisterCommand(new USTToggle());
+                __instance.RegisterCommand(new USTDebug());
+            }
+        }
     }
+    
 }
