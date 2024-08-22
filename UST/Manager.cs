@@ -21,7 +21,7 @@ namespace USTManager
         public static void CheckUSTs()
         {
             IEnumerable<FileInfo> files = Directory.GetFiles(Path.Combine(Plugin.UKPath, "USTs"), "*.ust", SearchOption.AllDirectories).Select(x => new FileInfo(x));
-            files = files.Concat(Directory.GetFiles(Path.Combine(Plugin.UKPath, "USTs"), "*.ust.json", SearchOption.AllDirectories).Select(x => new FileInfo(x)));
+            files = files.Concat(GetUstsInPlugins());
             AllUSTs.Clear();
             LegacyUSTConverter.legacyUSTs.Clear();
             foreach(FileInfo file in files)
@@ -143,6 +143,18 @@ namespace USTManager
                 File.WriteAllText(Plugin.LastUSTs, JsonConvert.SerializeObject(data, Formatting.Indented));//.Replace(@"\\","/"));
             }
         }
+        public static IEnumerable<FileInfo> GetUstsInPlugins()
+        {
+            DirectoryInfo plugins = new FileInfo(typeof(Plugin).Assembly.Location).Directory.Parent;
+            if(plugins.Exists)
+            {
+                return plugins.GetFiles("*.ust", SearchOption.AllDirectories).Concat(plugins.GetFiles("*.ust.json", SearchOption.AllDirectories));
+            }
+            else
+            {
+                return Enumerable.Empty<FileInfo>();
+            }
+        }
         public class USTSave { public List<string> Selected; public CustomUST UST; }
         public static void HandleAudioSource(string level, AudioSource source)
         {
@@ -165,7 +177,7 @@ namespace USTManager
             }
 
             level = level.Replace("Level ", "");
-            string key = level switch
+            string? key = level switch
             {
                 "0-5" => source.clip.name switch
                 {

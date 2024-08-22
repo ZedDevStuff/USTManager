@@ -15,16 +15,23 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
+using BepInEx.Configuration;
 
 namespace USTManager
 {
-    [BepInPlugin("com.zeddevstuff.ustmanager", "USTManager", "1.5.2")]
+    [BepInPlugin("dev.zeddevstuff.ustmanager", "USTManager", "1.5.4")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir, LastUSTs;
+        public ConfigEntry<bool> UpdateBasedSwappingEnabled;
         public static GameObject MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab, ConflictEntryPrefab, ConflictResolutionScreenPrefab, ToastPrefab;
         private void Awake()
         {
+            UpdateBasedSwappingEnabled = Config.Bind(
+                "Experimental", 
+                "UpdateBasedSwappingEnabled", 
+                false, 
+                "Enable this to use Update based swapping on top of method patching. This should allow most sounds to be swapped. This method will probably hurt performance.");
             instance = this;
             Harmony.CreateAndPatchAll(typeof(AudioSourcePatches));
             Harmony.CreateAndPatchAll(typeof(MainMenuPatches));
@@ -51,10 +58,10 @@ namespace USTManager
 
             AssetBundle bundle = AssetBundle.LoadFromMemory(Resources.Resource1.ust);
             MenuEntryPrefab = bundle.LoadAsset<GameObject>("MenuEntry");
-            Debug.Log("MenuEntryprefab " + (MenuEntryPrefab == null ? "null" : "not null"));
+            //Debug.Log("MenuEntryprefab " + (MenuEntryPrefab == null ? "null" : "not null"));
             MenuEntryPrefab.AddComponent<HudOpenEffect>();
             SelectionScreenEntryPrefab = bundle.LoadAsset<GameObject>("USTEntry");
-            Debug.Log("SelectionScreenEntryPrefab " + (SelectionScreenEntryPrefab == null ? "null" : "not null"));
+            //Debug.Log("SelectionScreenEntryPrefab " + (SelectionScreenEntryPrefab == null ? "null" : "not null"));
             USTEntry entry = SelectionScreenEntryPrefab.AddComponent<USTEntry>();
             entry.Image = SelectionScreenEntryPrefab.transform.GetChild(0).GetComponent<Image>();
             entry.Name = SelectionScreenEntryPrefab.transform.GetChild(1).GetComponent<TMP_Text>();
@@ -62,18 +69,32 @@ namespace USTManager
             entry.IconButton = SelectionScreenEntryPrefab.transform.GetChild(0).GetComponent<Button>();
             entry.Status = SelectionScreenEntryPrefab.transform.GetChild(0).GetChild(0).GetComponent<TMP_Text>();
             SelectionScreenPrefab = bundle.LoadAsset<GameObject>("OptionMenu");
-            Debug.Log("SelectionScreenPrefab " + (SelectionScreenPrefab == null ? "null" : "not null"));
+            //Debug.Log("SelectionScreenPrefab " + (SelectionScreenPrefab == null ? "null" : "not null"));
             SelectionScreenPrefab?.AddComponent<USTSelectionScreen>();
             ConflictEntryPrefab = bundle.LoadAsset<GameObject>("Conflict");
-            Debug.Log("ConflictEntryPrefab " + (ConflictEntryPrefab == null ? "null" : "not null"));
+            //Debug.Log("ConflictEntryPrefab " + (ConflictEntryPrefab == null ? "null" : "not null"));
             ConflictResolutionScreenPrefab = bundle.LoadAsset<GameObject>("ConflictResolutionScreen");
-            Debug.Log("ConflictResolutionScreenPrefab " + (ConflictResolutionScreenPrefab == null ? "null" : "not null"));
+            //Debug.Log("ConflictResolutionScreenPrefab " + (ConflictResolutionScreenPrefab == null ? "null" : "not null"));
             ConflictResolutionScreenPrefab?.AddComponent<ConflictResolutionScreen>();
             //ToastPrefab = bundle.LoadAsset<GameObject>("Popup");
             //ToastPrefab.AddComponent<Toast>();
             
             CreateTemplate();
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+        }
+        System.Diagnostics.Stopwatch sw = new();
+        public void Update()
+        {
+            //sw.Restart();
+            if(!UpdateBasedSwappingEnabled.Value) return;
+            AudioSource[] sources = /*UnityEngine.Resources.*/FindObjectsOfType<AudioSource>();
+            foreach(AudioSource source in sources)
+            {
+                if(source.GetComponent<USTTarget>()) continue;
+                else source.gameObject.AddComponent<USTTarget>();
+            }
+            //sw.Stop();
+            //Logging.Log($"Finding {sources.Length} audio sources took {sw.Elapsed}", Color.cyan);
         }
         public static USTSelectionScreen Screen;
         public static void OpenMenu(Transform transform)
