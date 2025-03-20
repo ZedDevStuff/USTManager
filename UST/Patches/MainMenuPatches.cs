@@ -14,9 +14,9 @@ namespace USTManager.Patches
         [HarmonyPatch(typeof(HudOpenEffect), "Awake"), HarmonyPostfix]
         public static void SetActive(HudOpenEffect __instance)
         {
-            if(__instance.name != "Audio Options") return;
+            if(__instance.name != "Audio" || __instance.transform.parent == null) return;
             //Logging.Log(__instance.transform.GetPath());
-            if(__instance.transform.GetChild(0).transform.Find("MenuEntry(Clone)") == null)
+            if(__instance.transform.GetChild(0).transform.name == "Container")
             {
                 RectTransform parent = __instance.transform.GetChild(0).GetComponent<RectTransform>();
                 GameObject obj = GameObject.Instantiate(Plugin.MenuEntryPrefab, parent);
