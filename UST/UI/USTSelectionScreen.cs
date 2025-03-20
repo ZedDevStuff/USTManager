@@ -12,9 +12,9 @@ using System.IO;
 public class USTSelectionScreen : MonoBehaviour
 {
     private static List<RectTransform> Entries = new List<RectTransform>();
-    private ScrollRect? ScrollRect;
-    private GameObject? EntryPrefab;
-    private Button? CreateButton, OpenFolderButton, RefreshButton, ExitButton, ConfirmButton;
+    private ScrollRect ScrollRect;
+    private GameObject EntryPrefab;
+    private Button CreateButton, OpenFolderButton, RefreshButton, ExitButton, ConfirmButton;
     public static USTSelectionScreen Instance { get; private set; }
 
     private void Awake()
@@ -104,7 +104,7 @@ public class USTSelectionScreen : MonoBehaviour
         }
         ScrollRect = GetComponentInChildren<ScrollRect>();
     }
-    public static Conflict? CurrentConflict;
+    public static Conflict CurrentConflict;
     public bool Confirm(Conflict conflict)
     {
         CurrentConflict = null;
@@ -123,7 +123,7 @@ public class USTSelectionScreen : MonoBehaviour
         }
         else return false;
     }
-    public static void InternalConfirm(List<string>? entries, CustomUST? ust)
+    public static void InternalConfirm(List<string> entries, CustomUST ust)
     {
         if(entries != null && ust != null)
         {
@@ -135,7 +135,7 @@ public class USTSelectionScreen : MonoBehaviour
     }
     public List<USTEntry> SelectedEntries = new();
     public static List<string> PersistentEntries = new();
-    public static CustomUST? CurrentUST { get; private set;}
+    public static CustomUST CurrentUST { get; private set;}
     
     void OnEnable()
     {

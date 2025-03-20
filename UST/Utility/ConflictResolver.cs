@@ -140,7 +140,7 @@ namespace USTManager.Utility
         /// Will fail and return null if the conflict isn't resolved
         /// </summary>
         /// <returns></returns>
-        public CustomUST? GetMerged()
+        public CustomUST GetMerged()
         {
             if(Validated) return mergedUST;
             return null;

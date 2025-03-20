@@ -23,7 +23,7 @@ namespace USTManager.Data
         [JsonIgnore] public string Path;
         [JsonIgnore] public bool IsMerged = false;
         [JsonIgnore] public Color UserColor = Color.white;
-        [JsonIgnore] public Sprite? Icon = null;
+        [JsonIgnore] public Sprite Icon = null;
 
         public CustomUST() { }
         public CustomUST(string name, string author, string description)

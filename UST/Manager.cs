@@ -177,7 +177,7 @@ namespace USTManager
             }
 
             level = level.Replace("Level ", "");
-            string? key = level switch
+            string key = level switch
             {
                 "0-5" => source.clip.name switch
                 {

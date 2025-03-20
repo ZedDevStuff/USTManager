@@ -2,24 +2,18 @@
 using System.IO;
 using UnityEngine;
 using HarmonyLib;
-using GameConsole;
 using USTManager.Data;
 using USTManager.Patches;
-using USTManager.Commands;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
 using USTManager.Misc;
-using USTManager.Utility;
 using System.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
 using BepInEx.Configuration;
 
 namespace USTManager
 {
-    [BepInPlugin("dev.zeddevstuff.ustmanager", "USTManager", "1.5.4")]
+    [BepInPlugin("dev.zeddevstuff.ustmanager", "USTManager", "1.5.5")]
     public class Plugin : BaseUnityPlugin
     {
         public static string UKPath, USTDir, LastUSTs;
@@ -41,7 +35,7 @@ namespace USTManager
             {
                 try
                 {
-                    Manager.USTSave? data = JsonConvert.DeserializeObject<Manager.USTSave>(File.ReadAllText(LastUSTs));
+                    Manager.USTSave data = JsonConvert.DeserializeObject<Manager.USTSave>(File.ReadAllText(LastUSTs));
                     if(data != null)
                     {
                         USTSelectionScreen.InternalConfirm(data.Selected, data.UST);
@@ -58,10 +52,8 @@ namespace USTManager
 
             AssetBundle bundle = AssetBundle.LoadFromMemory(Resources.Resource1.ust);
             MenuEntryPrefab = bundle.LoadAsset<GameObject>("MenuEntry");
-            //Debug.Log("MenuEntryprefab " + (MenuEntryPrefab == null ? "null" : "not null"));
             MenuEntryPrefab.AddComponent<HudOpenEffect>();
             SelectionScreenEntryPrefab = bundle.LoadAsset<GameObject>("USTEntry");
-            //Debug.Log("SelectionScreenEntryPrefab " + (SelectionScreenEntryPrefab == null ? "null" : "not null"));
             USTEntry entry = SelectionScreenEntryPrefab.AddComponent<USTEntry>();
             entry.Image = SelectionScreenEntryPrefab.transform.GetChild(0).GetComponent<Image>();
             entry.Name = SelectionScreenEntryPrefab.transform.GetChild(1).GetComponent<TMP_Text>();
@@ -69,15 +61,10 @@ namespace USTManager
             entry.IconButton = SelectionScreenEntryPrefab.transform.GetChild(0).GetComponent<Button>();
             entry.Status = SelectionScreenEntryPrefab.transform.GetChild(0).GetChild(0).GetComponent<TMP_Text>();
             SelectionScreenPrefab = bundle.LoadAsset<GameObject>("OptionMenu");
-            //Debug.Log("SelectionScreenPrefab " + (SelectionScreenPrefab == null ? "null" : "not null"));
             SelectionScreenPrefab?.AddComponent<USTSelectionScreen>();
             ConflictEntryPrefab = bundle.LoadAsset<GameObject>("Conflict");
-            //Debug.Log("ConflictEntryPrefab " + (ConflictEntryPrefab == null ? "null" : "not null"));
             ConflictResolutionScreenPrefab = bundle.LoadAsset<GameObject>("ConflictResolutionScreen");
-            //Debug.Log("ConflictResolutionScreenPrefab " + (ConflictResolutionScreenPrefab == null ? "null" : "not null"));
             ConflictResolutionScreenPrefab?.AddComponent<ConflictResolutionScreen>();
-            //ToastPrefab = bundle.LoadAsset<GameObject>("Popup");
-            //ToastPrefab.AddComponent<Toast>();
             
             CreateTemplate();
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
@@ -85,7 +72,6 @@ namespace USTManager
         System.Diagnostics.Stopwatch sw = new();
         public void Update()
         {
-            //sw.Restart();
             if(!UpdateBasedSwappingEnabled.Value) return;
             AudioSource[] sources = /*UnityEngine.Resources.*/FindObjectsOfType<AudioSource>();
             foreach(AudioSource source in sources)
@@ -93,8 +79,6 @@ namespace USTManager
                 if(source.GetComponent<USTTarget>()) continue;
                 else source.gameObject.AddComponent<USTTarget>();
             }
-            //sw.Stop();
-            //Logging.Log($"Finding {sources.Length} audio sources took {sw.Elapsed}", Color.cyan);
         }
         public static USTSelectionScreen Screen;
         public static void OpenMenu(Transform transform)
@@ -128,7 +112,6 @@ namespace USTManager
             AudioSource[] sources = FindObjectsOfType<AudioSource>()
                 .Where(s => s.isPlaying)
                 .Where(s => Manager.IsExtendedDebug ? true : s.spatialBlend < 1.0)
-                //.OrderByDescending(s => s.clip.length)
                 .ToArray();
 
             void DrawColumn(System.Action<AudioSource> action)
