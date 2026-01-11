@@ -29,7 +29,7 @@ namespace USTManager
                 if(file.Name == "template.ust") continue;
                 try
                 {
-                    CustomUST ust = JsonConvert.DeserializeObject<CustomUST>(File.ReadAllText(file.FullName));
+                    CustomUST? ust = JsonConvert.DeserializeObject<CustomUST>(File.ReadAllText(file.FullName));
                     if(ust == null) continue;
 
                     ust.Path = file.Directory.FullName;
@@ -155,7 +155,7 @@ namespace USTManager
                 return Enumerable.Empty<FileInfo>();
             }
         }
-        public class USTSave { public List<string> Selected; public CustomUST UST; }
+        public class USTSave { public List<string> Selected = new(); public CustomUST? UST; }
         public static void HandleAudioSource(string level, AudioSource source)
         {
             if(!IsEnabled) return;

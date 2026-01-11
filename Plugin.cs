@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using System.IO;
 using UnityEngine;
 using HarmonyLib;
@@ -16,9 +16,9 @@ namespace USTManager
     [BepInPlugin("dev.zeddevstuff.ustmanager", "USTManager", "1.5.5")]
     public class Plugin : BaseUnityPlugin
     {
-        public static string UKPath, USTDir, LastUSTs;
-        public ConfigEntry<bool> UpdateBasedSwappingEnabled;
-        public static GameObject MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab, ConflictEntryPrefab, ConflictResolutionScreenPrefab, ToastPrefab;
+        public static string UKPath = "", USTDir = "", LastUSTs = "";
+        public ConfigEntry<bool>? UpdateBasedSwappingEnabled;
+        public static GameObject? MenuEntryPrefab, SelectionScreenPrefab, SelectionScreenEntryPrefab, ConflictEntryPrefab, ConflictResolutionScreenPrefab, ToastPrefab;
         private void Awake()
         {
             UpdateBasedSwappingEnabled = Config.Bind(
@@ -72,7 +72,8 @@ namespace USTManager
         System.Diagnostics.Stopwatch sw = new();
         public void Update()
         {
-            if(!UpdateBasedSwappingEnabled.Value) return;
+            //sw.Restart();
+            if(!UpdateBasedSwappingEnabled!.Value) return;
             AudioSource[] sources = /*UnityEngine.Resources.*/FindObjectsOfType<AudioSource>();
             foreach(AudioSource source in sources)
             {
@@ -80,12 +81,12 @@ namespace USTManager
                 else source.gameObject.AddComponent<USTTarget>();
             }
         }
-        public static USTSelectionScreen Screen;
+        public static USTSelectionScreen? Screen;
         public static void OpenMenu(Transform transform)
         {
             if(Screen == null)
             {
-                Screen = Instantiate(SelectionScreenPrefab, transform).GetComponent<USTSelectionScreen>();
+                Screen = Instantiate(SelectionScreenPrefab, transform)!.GetComponent<USTSelectionScreen>();
                 Screen.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
             }
             else
@@ -93,10 +94,10 @@ namespace USTManager
                 Screen.gameObject.SetActive(true);
             }
         }
-        private static Plugin instance;
+        private static Plugin? instance;
         public static void RunCoroutine(System.Collections.IEnumerator routine)
         {
-            instance.StartCoroutine(routine);
+            instance!.StartCoroutine(routine);
         }
         public void CreateTemplate()
         {
