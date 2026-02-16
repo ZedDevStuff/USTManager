@@ -1,4 +1,6 @@
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V3JCAG2)
+# IMPORTANT
+
+The mod is currently abandoned, as I have other projects to work on on top of my last 2 years of college. Tho be reassured, a rewrite is planned as soon as the next ULTRAKILL update drops. Hopefully that also allows me to fix all the recurring issues with the mod.
 
 # USTManager
 
